@@ -1,0 +1,54 @@
+/*
+==================================================
+    ARQUIVO PRINCIPAL DE ESTILOS - style.css
+    - Importa todos os componentes visuais do site
+    - Define estilos globais e comportamentos base
+==================================================
+*/
+
+/* --------------------------------------------- */
+/* 1. IMPORTA OS COMPONENTES DO LAYOUT */
+/* --------------------------------------------- */
+
+@import url('components/_header.css');
+@import url('components/_footer.css');
+@import url('components/_buttons.css');
+@import url('components/_forms.css');
+@import url('components/_cards.css');
+@import url('components/_layout.css');
+@import url('components/_beneficios.css');
+@import url('components/_modal.css');
+
+/* --------------------------------------------- */
+/* 2. ESTILOS GLOBAIS E PADRÕES DE SITE */
+/* --------------------------------------------- */
+
+/* 
+  Suaviza o movimento da rolagem ao clicar nos links de navegação
+*/
+html {
+    scroll-behavior: smooth;
+}
+
+/* 
+  Define a aparência base do corpo da página:
+*/
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+
+    background-color: #f4f4f4; /* fundo cinza claro */
+    color: #333; /* texto cinza escuro */
+
+    padding-top: 70px; /* evita sobreposição com o header fixo */
+}
+
+/* 
+  Container centralizado
+*/
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto; /* centraliza horizontalmente */
+}

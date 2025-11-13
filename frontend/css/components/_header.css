@@ -1,0 +1,59 @@
+/* --- 1. Cabeçalho (Header) --- */
+.main-header {
+    background-color: #ffffff; /* Fundo branco */
+    border-bottom: 1px solid #dddddd;
+    padding: 3px 0;
+    position: fixed; /* Fixo no topo */
+    width: 100%;
+    top: 0;
+    z-index: 100; /* Garante que fique na frente de tudo */
+}
+
+.main-header .container {
+    display: flex; /* Coloca os itens um ao lado do outro */
+    justify-content: space-between; /* Espaça (logo na esquerda, menu no meio, login na direita) */
+    align-items: center; /* Alinha tudo verticalmente no centro */
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0d47a1; /* Azul escuro do protótipo */
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 90px; /* Ajuste o tamanho do seu ícone */
+    width: 90px;
+    margin-right: 10px;
+}
+
+/* --- LINKS DO NAV --- */
+.main-nav a {
+    text-decoration: none;
+    color: #555; /* Texto cinza padrão */
+    margin: 0 15px;
+    font-size: 16px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Hover: texto laranja */
+.main-nav a:hover {
+    color: #f57c00; /* texto laranja */
+}
+
+/* Seção ativa: texto cinza com sublinhado laranja */
+.main-nav a.active {
+    color: #555; /* mantém cinza */
+    border-bottom-color: #f57c00; /* sublinhado laranja */
+}
+
+/* Seção ativa + hover: texto e sublinhado laranja */
+.main-nav a.active:hover {
+    color: #f57c00; /* texto laranja */
+    border-bottom-color: #f57c00; /* mantém o sublinhado laranja */
+}
