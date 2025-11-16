@@ -198,3 +198,66 @@ VALUES
   '1. Respect the silence after 10 PM. 2. Smoking is not allowed indoors. 3. Keep the kitchen clean.', 
   1
 );
+
+--- 2. Insere 5 usuários com avaliações aprovadas que serão exibidas no index.html
+USE `albergue_db`;
+
+-- INSERÇÃO 1
+INSERT INTO `Usuarios` (nome_completo, email, senha, documento_tipo, documento_numero, data_nascimento, telefone_celular, tipo_usuario)
+VALUES ('Ana Clara', 'ana.clara@email.com', '123', 'CPF', '10010010001', '1990-01-01', '21910000001', 'CLIENTE');
+SET @cliente_id = LAST_INSERT_ID();
+
+INSERT INTO `Reservas` (fk_cliente_id, data_checkin, data_checkout, valor_total_diarias, status_reserva, origem)
+VALUES (@cliente_id, '2025-01-05 12:00:00', '2025-01-10 12:00:00', 750.00, 'FINALIZADA', 'ONLINE');
+SET @reserva_id = LAST_INSERT_ID();
+
+INSERT INTO `Avaliacoes` (fk_reserva_id, fk_cliente_id, nota, comentario, status_moderacao)
+VALUES (@reserva_id, @cliente_id, 5, 'Incrível! O lounge é muito confortável e o Wi-Fi é rápido.', 'APROVADO');
+
+-- INSERÇÃO 2
+INSERT INTO `Usuarios` (nome_completo, email, senha, documento_tipo, documento_numero, data_nascimento, telefone_celular, tipo_usuario)
+VALUES ('Lucas Mendes', 'lucas.mendes@email.com', '123', 'CPF', '10010010002', '1992-02-02', '21910000002', 'CLIENTE');
+SET @cliente_id = LAST_INSERT_ID();
+
+INSERT INTO `Reservas` (fk_cliente_id, data_checkin, data_checkout, valor_total_diarias, status_reserva, origem)
+VALUES (@cliente_id, '2025-02-10 12:00:00', '2025-02-12 12:00:00', 300.00, 'FINALIZADA', 'ONLINE');
+SET @reserva_id = LAST_INSERT_ID();
+
+INSERT INTO `Avaliacoes` (fk_reserva_id, fk_cliente_id, nota, comentario, status_moderacao)
+VALUES (@reserva_id, @cliente_id, 4, 'Muito bom! Perto de tudo em Santa Teresa. O quarto de 8 camas é barulhento, mas o preço compensa.', 'APROVADO');
+
+-- INSERÇÃO 3
+INSERT INTO `Usuarios` (nome_completo, email, senha, documento_tipo, documento_numero, data_nascimento, telefone_celular, tipo_usuario)
+VALUES ('Beatriz Lima', 'beatriz.lima@email.com', '123', 'CPF', '10010010003', '1994-03-03', '21910000003', 'CLIENTE');
+SET @cliente_id = LAST_INSERT_ID();
+
+INSERT INTO `Reservas` (fk_cliente_id, data_checkin, data_checkout, valor_total_diarias, status_reserva, origem)
+VALUES (@cliente_id, '2025-03-15 12:00:00', '2025-03-20 12:00:00', 800.00, 'FINALIZADA', 'ONLINE');
+SET @reserva_id = LAST_INSERT_ID();
+
+INSERT INTO `Avaliacoes` (fk_reserva_id, fk_cliente_id, nota, comentario, status_moderacao)
+VALUES (@reserva_id, @cliente_id, 5, 'Perfeito. O quarto privativo de 4 camas é muito confortável e o banheiro é ótimo.', 'APROVADO');
+
+-- INSERÇÃO 4
+INSERT INTO `Usuarios` (nome_completo, email, senha, documento_tipo, documento_numero, data_nascimento, telefone_celular, tipo_usuario)
+VALUES ('Rafael Costa', 'rafael.costa@email.com', '123', 'CPF', '10010010004', '1996-04-04', '21910000004', 'CLIENTE');
+SET @cliente_id = LAST_INSERT_ID();
+
+INSERT INTO `Reservas` (fk_cliente_id, data_checkin, data_checkout, valor_total_diarias, status_reserva, origem)
+VALUES (@cliente_id, '2025-04-01 12:00:00', '2025-04-03 12:00:00', 320.00, 'FINALIZADA', 'ONLINE');
+SET @reserva_id = LAST_INSERT_ID();
+
+INSERT INTO `Avaliacoes` (fk_reserva_id, fk_cliente_id, nota, comentario, status_moderacao)
+VALUES (@reserva_id, @cliente_id, 4, 'A equipe da recepção foi fantástica e me ajudou com tudo. Recomendo.', 'APROVADO');
+
+-- INSERÇÃO 5
+INSERT INTO `Usuarios` (nome_completo, email, senha, documento_tipo, documento_numero, data_nascimento, telefone_celular, tipo_usuario)
+VALUES ('Juliana Alves', 'juliana.alves@email.com', '123', 'CPF', '10010010005', '1998-05-05', '21910000005', 'CLIENTE');
+SET @cliente_id = LAST_INSERT_ID();
+
+INSERT INTO `Reservas` (fk_cliente_id, data_checkin, data_checkout, valor_total_diarias, status_reserva, origem)
+VALUES (@cliente_id, '2025-05-10 12:00:00', '2025-05-17 12:00:00', 1050.00, 'FINALIZADA', 'ONLINE');
+SET @reserva_id = LAST_INSERT_ID();
+
+INSERT INTO `Avaliacoes` (fk_reserva_id, fk_cliente_id, nota, comentario, status_moderacao)
+VALUES (@reserva_id, @cliente_id, 5, 'Amei a área da churrasqueira e o coworking. Conheci muitas pessoas legais. Voltarei em breve!', 'APROVADO');

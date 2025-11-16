@@ -74,12 +74,7 @@ const dicionarioErros = {
 // SCRIPT PRINCIPAL
 // ========================================================================
 
-// 1. Pega o idioma salvo
-let idiomaAtual = localStorage.getItem('idioma');
-if (!idiomaAtual) {
-    idiomaAtual = 'pt';
-    localStorage.setItem('idioma', 'pt');
-}
+let idiomaAtual = localStorage.getItem('idioma') || 'pt';
 
 /**
  * Função: aplicarTraducoes (Global)
@@ -87,16 +82,18 @@ if (!idiomaAtual) {
 function aplicarTraducoes() {
     document.querySelectorAll('[data-key]').forEach(elem => {
         const key = elem.getAttribute('data-key');
-        if (dicionarioTextos[idiomaAtual][key]) {
+        if (dicionarioTextos[idiomaAtual] && dicionarioTextos[idiomaAtual][key]) {
             elem.innerText = dicionarioTextos[idiomaAtual][key];
         }
     });
     document.body.classList.add('js-traduzido');
 }
 
-/**
- * Funções Globais de Ajuda para Validação
- */
+// ========================================================================
+// (CORREÇÃO) FUNÇÕES GLOBAIS DE AJUDA PARA VALIDAÇÃO
+// (Movidas para fora do DOMContentLoaded para corrigir o ReferenceError)
+// ========================================================================
+
 function mostrarErro(inputId, mensagem) {
     const inputElement = document.getElementById(inputId);
     if (inputElement) {
@@ -169,6 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const showRegisterLink = document.getElementById('show-register');
     const showLoginLink = document.getElementById('show-login');
 
+    const formLogin = document.getElementById('form-login'); // (Para o .reset())
+    const formRegister = document.getElementById('form-register'); // (Para o .reset())
+
     const btnLogin = document.getElementById('btn-login-submit');
     const loginErrorMessage = document.getElementById('login-error-message');
     const btnRegister = document.getElementById('btn-register-submit');
@@ -183,13 +183,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const regCelular = document.getElementById('reg-celular');
 
     // --- 3. Lógica de Troca de Formulário ---
-    showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); loginWrapper.classList.add('hidden'); registerWrapper.classList.remove('hidden'); });
-    showLoginLink.addEventListener('click', (e) => { e.preventDefault(); registerWrapper.classList.add('hidden'); loginWrapper.classList.remove('hidden');
+    showRegisterLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        loginWrapper.classList.add('hidden'); 
+        registerWrapper.classList.remove('hidden'); 
+        formLogin.reset(); // Limpa o form de login
+        limparErroGeral(loginErrorMessage);
+    });
+    showLoginLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        registerWrapper.classList.add('hidden'); 
+        loginWrapper.classList.remove('hidden');
 
-        // Limpa o formulário de cadastro ao voltar para o login
+        // Limpa o formulário de cadastro ao voltar
         formRegister.reset();
         limparErroGeral(registerErrorMessage);
-        // Limpa todos os erros de campo (bordas vermelhas)
         limparErro('reg-nome');
         limparErro('reg-email');
         limparErro('reg-senha');
@@ -212,33 +220,24 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'sucesso') {
-                
-                // --- CORREÇÃO (Ponto de Falha 2) ---
-                if (data.tipo_usuario === 'CLIENTE') {
-                    
-                    // 1. Verifica se há uma reserva pendente no localStorage
-                    const reservaPendente = localStorage.getItem('reservaPendente');
-                    
-                    if (reservaPendente) {
-                        // 2. Se houver, redireciona de VOLTA para a página de reserva
-                        // (O script_reserva.js vai ler isso e pular para o Passo 2)
-                        window.location.href = 'reserva.html';
-                    } else {
-                        // 3. Se não, vai para o painel normal
-                        window.location.href = 'painel_cliente.html';
-                    }
-                    
+                const reservaPendente = localStorage.getItem('reservaPendente');
+                if (data.tipo_usuario === 'CLIENTE' && reservaPendente) {
+                    window.location.href = 'reserva.html';
+                } else if (data.tipo_usuario === 'CLIENTE') {
+                    window.location.href = 'painel_cliente.html';
                 } else {
-                    // (ATENDENTE ou ADMIN_MASTER)
                     window.location.href = 'painel_admin.html';
                 }
             } else {
-                exibirErro(loginErrorMessage, data.mensagem);
+                mostrarErro('login-error-message', data.mensagem);
             }
         })
-        .catch(err => exibirErro(loginErrorMessage, 'Erro de conexão.'));
+        .catch(err => mostrarErro('login-error-message', 'Erro de conexão.'));
     });
     
+    // --- 5. Funções de Ajuda para Validação ---
+    // (AS FUNÇÕES FORAM MOVIDAS PARA O TOPO DO ARQUIVO)
+
     // --- 6. Lógica de MÁSCARA (enquanto digita) ---
     regDocNum.addEventListener('input', (e) => {
         if (regDocTipo.value !== 'CPF') return; 
@@ -288,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         limparErroGeral(registerErrorMessage);
 
+        // Força todas as validações
         regNome.dispatchEvent(new Event('blur'));
         regEmail.dispatchEvent(new Event('blur'));
         regDocNum.dispatchEvent(new Event('blur'));
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (document.querySelector('.field-error[style*="display: block"]')) {
-            exibirErro(registerErrorMessage, 'Por favor, corrija os campos em vermelho.');
+            mostrarErro('register-error-message', 'Por favor, corrija os campos em vermelho.');
             return;
         }
 
@@ -313,11 +313,8 @@ document.addEventListener('DOMContentLoaded', () => {
             documento_numero: regDocNum.value.replace(/\D/g, ''),
             data_nascimento: regNascimento.value,
             telefone_celular: regCelular.value.replace(/\D/g, '')
-            // (Não enviamos 'idioma' para a API)
         };
         
-        // --- CORREÇÃO AQUI ---
-        // (O fetch é o mesmo, mas o .catch() agora traduz)
         fetch('api/usuario/cadastro.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -325,21 +322,14 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(response => {
             if (!response.ok) { 
-                // Se a resposta for 500 ou 400, lemos como JSON
-                return response.json().then(err => {
-                    // O 'err.mensagem' é o erro cru do PHP (em PT-BR)
-                    throw new Error(err.mensagem);
-                });
+                return response.json().then(err => { throw new Error(err.mensagem); });
             }
             return response.json();
         })
         .then(data => {
             if (data.status === 'sucesso') {
                 alert('Conta criada com sucesso! Por favor, faça o login.');
-                // Limpa o formulário de cadastro ANTES de
-                // clicar no link para voltar ao login.
                 formRegister.reset(); 
-                
                 showLoginLink.click();
             }
         })
@@ -350,18 +340,16 @@ document.addEventListener('DOMContentLoaded', () => {
             let erroKey = 'ERRO_GENERICO_CADASTRO'; // Padrão
             const rawMessage = error.message;
 
-            // O PHP nos deu 'Este email já está cadastrado.'
             if (rawMessage.includes('email')) { 
                 erroKey = 'ERRO_EMAIL_DUPLICADO';
             } 
-            // O PHP nos deu 'Este número de documento já está cadastrado.'
             else if (rawMessage.includes('documento_numero')) {
                 erroKey = 'ERRO_DOC_DUPLICADO';
             }
             
-            // Pega a tradução correta (pt ou en) do dicionário
-            const mensagemAmigavel = dicionarioErros[erroKey][idiomaAtual];
+            const mensagemAmigavel = dicionarioErros[idiomaAtual][erroKey];
             
+            // Agora 'mostrarErro' é global e pode ser chamada
             mostrarErro('register-error-message', mensagemAmigavel);
         });
     });
