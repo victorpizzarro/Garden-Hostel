@@ -1,0 +1,341 @@
+/* ==========================================================================
+   Estilos específicos do Painel de Admin
+   ========================================================================== */
+
+/* Cards e Listas Genéricas */
+.painel-main-content .card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.painel-main-content h1 {
+    color: #0d47a1; /* Azul escuro */
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.painel-main-content h2 {
+    color: #1976d2; /* Azul médio */
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.painel-main-content h3 {
+    color: #3f51b5; /* Azul um pouco mais claro */
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.painel-lista {
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.painel-lista p {
+    color: #555;
+    font-style: italic;
+    text-align: center;
+    padding: 15px 0;
+}
+
+/* Formulários GRID para organização */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 2 ou mais colunas */
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Estilo para itens de lista (como clientes, quartos) */
+.list-item-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.list-item-card .info {
+    flex-grow: 1;
+}
+
+.list-item-card .info strong {
+    color: #0d47a1;
+    font-size: 1.1em;
+}
+
+.list-item-card .actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* ==========================================================================
+   Seção de Recepção - Check-ins/Check-outs
+   ========================================================================== */
+.reserva-check-card {
+    background-color: #fff;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.reserva-check-card .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+}
+
+.reserva-check-card .header strong {
+    font-size: 1.2em;
+    color: #0d47a1;
+}
+
+.reserva-check-card .body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+    color: #555;
+}
+
+.reserva-check-card .body p strong {
+    color: #333;
+}
+
+.reserva-check-card .footer-actions {
+    display: flex;
+    justify-content: flex-end; /* Alinha à direita */
+    gap: 10px;
+    border-top: 1px dashed #eee;
+    padding-top: 15px;
+    margin-top: 10px;
+}
+
+.reserva-check-card .consumo-section {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+.reserva-check-card .consumo-section h4 {
+    margin-bottom: 10px;
+    color: #1976d2;
+}
+
+.reserva-check-card .consumo-section .consumo-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px dotted #eee;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.reserva-check-card .consumo-form {
+    display: grid;
+    grid-template-columns: 1fr auto auto; /* Item, Valor, Botão */
+    gap: 10px;
+    margin-top: 15px;
+    align-items: end;
+}
+.reserva-check-card .consumo-form input[type="text"] {
+    grid-column: 1 / 2;
+}
+.reserva-check-card .consumo-form input[type="number"] {
+    width: 100px;
+}
+
+.reserva-check-card .saldo-info {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #d32f2f; /* Vermelho para dívida */
+    margin-top: 10px;
+    text-align: right;
+    padding-top: 10px;
+    border-top: 1px dashed #eee;
+}
+.reserva-check-card .saldo-info.quitado {
+    color: #388e3c; /* Verde para quitado */
+}
+
+/* ==========================================================================
+   Seção de Clientes
+   ========================================================================== */
+#clientes-lista-busca .cliente-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e3f2fd; /* Azul clarinho */
+    border: 1px solid #90caf9;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+#clientes-lista-busca .cliente-card .info {
+    flex-grow: 1;
+    color: #0d47a1;
+}
+#clientes-lista-busca .cliente-card .info strong {
+    font-size: 1.1em;
+}
+#clientes-lista-busca .cliente-card button {
+    margin-left: 15px;
+}
+
+#form-nova-reserva-balcao {
+    margin-top: 30px;
+    border: 1px solid #ccc;
+}
+#form-nova-reserva-balcao h3 {
+    text-align: center;
+    color: #0d47a1;
+}
+#form-nova-reserva-balcao #cliente-selecionado-nome {
+    color: #1976d2;
+}
+
+#balcao-vagas-disponiveis {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+#balcao-vagas-disponiveis h4 {
+    color: #3f51b5;
+    margin-bottom: 15px;
+}
+#balcao-vagas-lista .vaga-item {
+    background-color: #f0f4c3; /* Amarelo clarinho */
+    border: 1px solid #cddc39;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    color: #555;
+}
+#balcao-vagas-lista .vaga-item strong {
+    color: #689f38;
+}
+
+/* ==========================================================================
+   Seção de Todas as Reservas
+   ========================================================================== */
+#todas-reservas-lista .reserva-full-card {
+    background-color: #fff;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+#todas-reservas-lista .reserva-full-card .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+#todas-reservas-lista .reserva-full-card .header strong {
+    font-size: 1.2em;
+    color: #0d47a1;
+}
+#todas-reservas-lista .reserva-full-card .status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+#todas-reservas-lista .reserva-full-card .body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 15px;
+}
+#todas-reservas-lista .reserva-full-card .body p strong {
+    color: #333;
+}
+#todas-reservas-lista .reserva-full-card .footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px dashed #eee;
+    padding-top: 15px;
+    margin-top: 10px;
+}
+
+/* Status Colors (reaproveitar do painel_cliente) */
+.reserva-full-card .status.status-pendente, .reserva-check-card .status-PENDENTE {
+    background-color: #ffeb3b; /* Amarelo */
+    color: #f57f17;
+}
+.reserva-full-card .status.status-confirmada, .reserva-check-card .status-CONFIRMADA {
+    background-color: #c8e6c9; /* Verde claro */
+    color: #2e7d32;
+}
+.reserva-full-card .status.status-checkin, .reserva-check-card .status-CHECKIN {
+    background-color: #bbdefb; /* Azul claro */
+    color: #1565c0;
+}
+.reserva-full-card .status.status-finalizada, .reserva-check-card .status-FINALIZADA {
+    background-color: #e0e0e0; /* Cinza claro */
+    color: #424242;
+}
+.reserva-full-card .status.status-cancelada, .reserva-check-card .status-CANCELADA {
+    background-color: #ffcdd2; /* Vermelho claro */
+    color: #c62828;
+}
+
+/* ==========================================================================
+   Seção de Gestão de Quartos
+   ========================================================================== */
+#quartos-lista .quarto-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e8f5e9; /* Verde clarinho */
+    border: 1px solid #a5d6a7;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+#quartos-lista .quarto-item-card .info {
+    flex-grow: 1;
+    color: #2e7d32;
+}
+#quartos-lista .quarto-item-card .info strong {
+    font-size: 1.1em;
+}
+
+/* Modal de Quarto (reutiliza .login-form) */
+#modal-quarto-form .login-form {
+    max-width: 500px;
+}
+
+#modal-quarto-form #quarto-form-titulo {
+    color: #0d47a1;
+}
+#modal-quarto-form #quarto-form-message {
+    margin-bottom: 15px;
+}

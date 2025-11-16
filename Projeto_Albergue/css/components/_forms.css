@@ -1,0 +1,73 @@
+/* --- 3. Formulários (Barra de Busca) --- */
+.search-bar-container {
+    /* Este container ajuda a centralizar a barra flutuante 
+    position: absolute;
+    bottom: -45px; /* Puxa a barra 45px para baixo, "saindo" do banner */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.search-bar {
+    background-color: #0A1A3F;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    gap: 20px; /* Espaço entre os campos */
+    width: 80%;
+    max-width: 900px;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column; /* Coloca o <label> em cima do <input> */
+    flex-grow: 1; /* Faz os campos crescerem e ocuparem o espaço */
+}
+
+.search-field label {
+    font-size: 20px;
+    color: #ffffff;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.search-field input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* --- Estilização do Seletor de Data (input[type="date"]) --- */
+
+    /* Remove a seta de "spin" (subir/descer) no Chrome/Edge */
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-clear-button {
+        display: none;
+    }
+
+    /* Esconde o ícone de calendário padrão do Chrome/Edge */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
+    }
+
+    /* Estiliza a "caixa" do input */
+    .search-field input[type="date"] {
+        /* (Opcional) Força a cor do texto para não ficar cinza antes de selecionar */
+        color: #333; 
+        
+        background-image: url('../../imagens/icone-calendario.svg');
+        background-repeat: no-repeat;
+        background-position: right 15px center; /* Posição do ícone */
+        background-size: 20px 20px; /* Tamanho do ícone */
+
+        /* Adiciona um espaço à direita no input para o texto não
+        passar por cima do nosso novo ícone */
+        padding-right: 45px;
+        cursor: pointer; /* Muda o mouse para "mãozinha" */
+    }
+
+/* --- Fim da Estilização do Seletor de Data (input[type="date"]) --- */

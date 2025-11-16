@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva - Garden Hostel</title>
+    
+    <link rel="icon" type="image/svg+xml" href="imagens/logo-icon.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page reserva-page">
+
+    <header class="main-header header-simple">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="imagens/logo-icon.svg" alt="Logo Garden Hostel" class="logo-img">
+                </a>
+            </div>
+            
+            <div class="lang-switcher">
+                <button id="btn-lang-pt" class="btn-lang active" aria-label="Mudar para Português">
+                    <img src="imagens/flag-br.svg" alt="Bandeira do Brasil">
+                </button>
+                <button id="btn-lang-en" class="btn-lang" aria-label="Mudar para Inglês">
+                    <img src="imagens/flag-us.svg" alt="Bandeira dos EUA">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="login-container">
+        <div class="login-form" id="reserva-card-principal">
+            
+            <div class="reserva-busca-topo">
+                <div class="form-field">
+                    <label for="reserva-checkin" data-key="label-checkin">Check-in</label>
+                    <input type="date" id="reserva-checkin">
+                </div>
+                <div class="form-field">
+                    <label for="reserva-checkout" data-key="label-checkout">Check-out</label>
+                    <input type="date" id="reserva-checkout">
+                </div>
+            </div>
+
+            <div class="stepper">
+                <div class="step step-1 active" id="step-1">
+                    <span>1</span> <label data-key="reserva-passo1">Escolha a Acomodação</label>
+                </div>
+                <div class="step step-2" id="step-2">
+                    <span>2</span> <label data-key="reserva-passo2">Confirmação e Pagamento</label>
+                </div>
+            </div>
+            
+            <div id="reserva-message" class="error-message"></div>
+
+            <div class="reserva-grid">
+                
+                <div class="reserva-conteudo">
+                    
+                    <div id="passo-1-selecao">
+                        <div id="lista-quartos-disponiveis" class="painel-lista">
+                            <p data-key="reserva-buscando">Buscando acomodações...</p>
+                        </div>
+                    </div>
+
+                    <div id="passo-2-confirmacao" class="hidden">
+                        
+                        <div class="checkout-form">
+                            <h3 class="form-title" data-key="pagamento-titulo">Método de pagamento</h3>
+                            <p data-key="pagamento-cartao">Cartões de crédito</p>
+                            
+                            <div class="form-field">
+                                <label for="pag-titular" data-key="pagamento-titular">Titular</label>
+                                <input type="text" id="pag-titular" placeholder="Digite o nome do titular">
+                            </div>
+                            <div class="form-field">
+                                <label for="pag-cpf" data-key="pagamento-cpf">CPF/CNPJ</label>
+                                <input type="text" id="pag-cpf" placeholder="Digite o documento">
+                            </div>
+                            <div class="form-field">
+                                <label for="pag-numero" data-key="pagamento-numero">Número do Cartão</label>
+                                <input type="text" id="pag-numero" placeholder="0000 0000 0000 0000">
+                            </div>
+                            <div class="form-grid-col2">
+                                <div class="form-field">
+                                    <label for="pag-validade" data-key="pagamento-validade">Validade (MM/AA)</label>
+                                    <input type="text" id="pag-validade" placeholder="MM/AA">
+                                </div>
+                                <div class="form-field">
+                                    <label for="pag-cvv" data-key="pagamento-cvv">Código (CVV)</label>
+                                    <input type="text" id="pag-cvv" placeholder="123">
+                                </div>
+                            </div>
+                        </div>
+                    </div> </div> <div class="reserva-sidebar">
+                    <div class="checkout-resumo">
+                        <h3 class="form-title" data-key="resumo-titulo">Sua reserva</h3>
+                        
+                        <div id="resumo-quarto-selecionado">
+                            <p data-key="resumo-vazio">Selecione uma ou mais vagas na lista ao lado.</p>
+                            </div>
+
+                        <div id="bloco-termos" class="form-field-termos hidden">
+                            <input type="checkbox" id="termos-aceite">
+                            <label for="termos-aceite">
+                                <span data-key="termos-texto-1">Eu li e aceito os</span>
+                                <a href="#" id="link-termos" data-key="termos-link">Termos e Regras</a>
+                            </label>
+                            <div class="field-error" id="termos-error"></div>
+                        </div>
+                        
+                        <button type-="button" id="btn-acao-principal" class="btn btn-login-submit" disabled>
+                            Reservar Agora
+                        </button>
+
+                    </div>
+                </div> </div> </div>
+    </main>
+    
+    <footer class="footer-bar">
+    </footer>
+
+    <div id="modal-login-reserva" class="modal-overlay">
+        <div class="login-form" id="login-modal-content">
+            <div id="modal-form-login">
+                </div>
+            <div id="modal-form-register" class="hidden">
+                </div>
+        </div>
+    </div>
+    
+    <script src="js/script_reserva.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+/* ==========================================================
+   8. MODAL DE GALERIA
+   - Exibe imagem ampliada com navegação e fechamento
+   ========================================================== */
+
+/* ---------- Overlay ---------- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0; /* substitui top/left/right/bottom */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ativado pelo JavaScript */
+.modal-overlay.active {
+    display: flex;
+}
+
+/* ---------- Conteúdo do modal ---------- */
+.modal-content {
+    position: relative;
+    max-width: 80vw;
+    max-height: 80vh;
+}
+
+#modal-imagem {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* mantém proporção da imagem */
+    border-radius: 8px;
+}
+
+/* ---------- Botão Fechar (X) ---------- */
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 42px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #ccc;
+}
+
+/* ---------- Setas de Navegação (< >) ---------- */
+.modal-prev,
+.modal-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.25);
+    border: none;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover */
+.modal-prev:hover,
+.modal-next:hover,
+.modal-prev:active,
+.modal-next:active {
+    background: rgba(0, 0, 0, 0.5);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Foco */
+.modal-prev:focus,
+.modal-next:focus {
+    outline: none;
+}
+
+/* Posições */
+.modal-prev {
+    left: 20px;
+}
+
+.modal-next {
+    right: 20px;
+}
+
+/* Botão de Fechar (X) para formulários */
+.modal-close-form {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #999;
+    cursor: pointer;
+}
+.modal-close-form:hover {
+    color: #333;
+}
+
+/* Garante que o formulário de avaliação
+   fique na frente do fundo escuro
+*/
+#modal-avaliacao .login-form {
+    position: relative;
+    z-index: 1001; /* Fica na frente do overlay */
+}
+
+/* Campo de texto para comentários */
+#avaliacao-comentario {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; 
+    font-family: Arial, sans-serif;
+    resize: vertical; /* Permite ao usuário aumentar a altura */
+}
+#avaliacao-comentario:focus {
+    border-color: #f57c00;
+    outline: none;
+}
+
+/* --- Estilos do Modal de Alerta (Sucesso/Erro) --- */
+
+/* Reutilizamos a classe .modal-overlay (fundo preto)
+  e .login-form (card branco)
+*/
+
+/* Define a largura do card de alerta */
+#alerta-content {
+    width: 400px;
+    
+    /* Garante que o alerta fique na frente do modal de avaliação
+       (caso um erro aconteça dentro de um modal)
+    */
+    position: relative;
+    z-index: 1002; 
+}
+
+/* Título do Alerta */
+#alerta-titulo {
+    color: #0d47a1; /* Azul */
+}
+
+/* Botão "OK" */
+#alerta-ok-btn {
+    margin-top: 20px;
+}
+
+/* --- Estilos do Modal de Confirmação --- */
+
+#confirm-content {
+    width: 400px;
+    position: relative;
+    z-index: 1003; /* Fica na frente de outros modais */
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: space-between; /* Botões separados */
+    gap: 15px;
+    margin-top: 25px;
+}
+.confirm-actions .btn {
+    width: 48%; /* Divide o espaço */
+    padding: 12px;
+}

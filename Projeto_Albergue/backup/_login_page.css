@@ -1,0 +1,146 @@
+/**
+ * Arquivo: /css/components/_login_page.css
+ * Descrição: Estilos da página de Login e Cadastro
+ */
+
+/* --- NOVO: Fundo (Background) da Página ---
+  Esta regra cria um "pseudo-elemento" (::before)
+  que fica FIXO atrás da página inteira.
+*/
+body.login-page::before {
+    content: ""; /* Obrigatório para o ::before funcionar */
+    position: fixed; /* Fica fixo na tela */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* 100% da altura da tela */
+    
+    /* 1. Pega a mesma imagem do index.html */
+    background-image: url('../../imagens/banner-principal.jpg');
+    background-size: cover;
+    background-position: center;
+
+    /* 2. A MÁGICA: Aplica o "blur" (desfoque) */
+    filter: blur(5px);
+    
+    /* 3. Coloca este elemento atrás de todo o conteúdo */
+    z-index: -1; 
+}
+
+/* O container do formulário.
+  (O z-index: 1 garante que ele fique na frente do blur)
+*/
+.login-container {
+    min-height: calc(100vh - 200px); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+    
+
+}
+
+/* A caixa (card) do formulário */
+.login-form {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+.form-title {
+    color: #0d47a1; /* Azul */
+    text-align: center;
+    margin-top: 0;
+}
+
+/* Campos do formulário (label + input) */
+.form-field {
+    margin-bottom: 20px;
+}
+.form-field label {
+    display: block; /* Faz o label ocupar a linha inteira */
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="password"],
+.form-field input[type="date"],
+.form-field input[type="tel"],
+.form-field select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    /* Adiciona box-sizing para o padding não "estourar" a largura */
+    box-sizing: border-box; 
+}
+.form-field input:focus,
+.form-field select:focus {
+    border-color: #f57c00; /* Laranja (do nosso protótipo) */
+    outline: none;
+}
+
+/* Botão de Entrar / Cadastrar */
+.btn-login-submit {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+}
+
+/* Link para trocar (ex: "Cadastre-se aqui") */
+.form-switcher {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 15px;
+}
+.form-switcher a {
+    color: #f57c00;
+    font-weight: bold;
+    text-decoration: none;
+}
+.form-switcher a:hover {
+    text-decoration: underline;
+}
+
+/* Mensagem de erro (ex: "Senha inválida") */
+.error-message {
+    color: #D32F2F; /* Vermelho escuro */
+    background-color: #FFCDD2; /* Fundo vermelho claro */
+    border: 1px solid #D32F2F;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+    
+    /* Começa escondida */
+    display: none;
+}
+
+/* Classe de controle do JS */
+.hidden {
+    display: none;
+}
+
+/* --- Estilos da Validação em Tempo Real --- */
+
+/* Estilo para a mensagem de erro (ex: "Email inválido") */
+.field-error {
+    color: #D32F2F; /* Vermelho escuro */
+    font-size: 13px;
+    font-weight: bold;
+    padding-top: 4px;
+    
+    /* Começa escondido */
+    display: none;
+}
+
+/* Estilo para a borda do input quando dá erro */
+.input-error {
+    border-color: #D32F2F !important; /* Borda vermelha */
+    background-color: #FFCDD2; /* Fundo levemente vermelho */
+}

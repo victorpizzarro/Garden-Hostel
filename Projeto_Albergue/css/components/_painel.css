@@ -1,0 +1,280 @@
+/**
+ * Arquivo: /css/components/_painel.css
+ * Descrição: Estilos do layout do Dashboard (Cliente e Admin)
+ */
+
+/* Força o layout do painel a ocupar 100% da tela, sem rolar */
+body.painel-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    padding-top: 0; 
+}
+.painel-page .main-header {
+    position: static; 
+    flex-shrink: 0; 
+}
+.painel-body-wrapper {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden; 
+}
+
+/* --- A Sidebar (Esquerda) --- */
+.sidebar {
+    width: 240px; 
+    flex-shrink: 0; 
+    background-color: #ffffff;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto; 
+}
+.sidebar h3 {
+    color: #0d47a1;
+    border-bottom: 2px solid #f57c00;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.sidebar-nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 15px;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+.sidebar-nav a:hover {
+    background-color: #f4f4f4;
+}
+.sidebar-nav a.active {
+    background-color: #0d47a1;
+    color: #ffffff; 
+}
+
+/* --- O Conteúdo (Direita) --- */
+.painel-main-content {
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding: 30px;
+    background-color: #f4f4f4;
+}
+.painel-main-content h1 {
+    color: #0d47a1;
+    margin-top: 0;
+}
+
+/* =================================================
+   ESTILOS DOS CARDS DE RESERVA (Painel Cliente)
+================================================= */
+.reserva-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border-left: 5px solid #ccc; 
+    padding-bottom: 20px;
+}
+.reserva-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f9f9f9; 
+    border-bottom: 1px solid #eee;
+}
+.reserva-header strong {
+    color: #0d47a1; 
+}
+.reserva-status {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #fff;
+    background-color: #999; 
+}
+.reserva-body {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+.reserva-body p { margin: 0; font-size: 15px; }
+.reserva-actions {
+    padding: 0 20px;
+    text-align: right;
+}
+
+/* --- Cores dos Status --- */
+.reserva-card.status-confirmada { border-left-color: #4CAF50; }
+.reserva-card.status-confirmada .reserva-status { background-color: #4CAF50; }
+.reserva-card.status-checkin { border-left-color: #2196F3; }
+.reserva-card.status-checkin .reserva-status { background-color: #2196F3; }
+.reserva-card.status-pendente { border-left-color: #f57c00; }
+.reserva-card.status-pendente .reserva-status { background-color: #f57c00; }
+.reserva-card.status-finalizada { border-left-color: #616161; }
+.reserva-card.status-finalizada .reserva-status { background-color: #616161; }
+.reserva-card.status-cancelada { border-left-color: #D32F2F; }
+.reserva-card.status-cancelada .reserva-status { background-color: #D32F2F; }
+
+/* --- Estilo dos Botões de Ação --- */
+.btn-pagar, .btn-avaliar {
+    background-color: #f57c00; /* Laranja */
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.btn-pagar:hover, .btn-avaliar:hover {
+    background-color: #e65100;
+}
+.btn-cancelar {
+    background-color: #D32F2F; /* Vermelho */
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.btn-cancelar:hover {
+    background-color: #B71C1C;
+}
+
+/* (Bug 1) Botão "Ver Avaliação" (agora clicável) */
+.btn-ver-avaliacao {
+    background-color: #616161; /* Cinza */
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.8;
+}
+.btn-ver-avaliacao:hover {
+    opacity: 1.0;
+}
+
+/* ==========================================================
+   ESTILOS DO FORMULÁRIO "MEU PERFIL" (Painel Cliente)
+=========================================================== */
+
+#form-perfil {
+    width: 700px; 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+    
+    /* CORREÇÃO (Bug 4): Centraliza o formulário na página */
+    margin: 0 auto;
+}
+
+#form-perfil h3,
+#form-perfil #perfil-message {
+    grid-column: 1 / 3;
+}
+#form-perfil h3 {
+    color: #0d47a1;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+/* Campos travados */
+.form-field input:disabled {
+    background-color: #f4f4f4;
+    color: #777;
+    cursor: not-allowed;
+}
+
+/* --- CORREÇÃO (Bug 2): Alinhamento dos Botões --- */
+.perfil-botoes-wrapper {
+    /* Ocupa as 2 colunas do grid */
+    grid-column: 1 / 3;
+    
+    /* Alinha os botões (e o texto) no CENTRO */
+    text-align: center;
+    
+    /* Espaço entre os botões (se houver mais de um) */
+    display: flex;
+    gap: 15px;
+    
+    /* Centraliza os botões */
+    justify-content: center; 
+    
+    margin-top: 20px;
+}
+
+/* Define um tamanho padrão para TODOS os botões do perfil */
+.perfil-botoes-wrapper #btn-editar-perfil,
+.perfil-botoes-wrapper #btn-salvar-perfil,
+.perfil-botoes-wrapper #btn-cancelar-edicao {
+    width: auto;
+    /* Define uma largura mínima para os botões */
+    min-width: 180px; 
+}
+
+
+/* --- CORREÇÃO (Bug 2): Mensagens de Sucesso/Erro --- */
+#perfil-message {
+    /* Esconde a div de erro por padrão */
+    display: none;
+    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+#perfil-message.message-sucesso {
+    color: #fff;
+    background-color: #0d47a1; /* Azul (identidade) */
+    border: 1px solid #0d47a1;
+    display: block;
+}
+#perfil-message.message-erro {
+    color: #D32F2F; 
+    background-color: #FFCDD2;
+    border: 1px solid #D32F2F;
+    display: block;
+}
+
+/* --- (NOVO) Estilo da Avaliação Expandida --- */
+.avaliacao-detalhe {
+    background-color: #f9f9f9; 
+    padding: 20px;
+    margin: 20px 20px 0 20px; /* <--- Margem-bottom zerada */
+    border-top: 1px solid #eee;
+    border-radius: 8px;
+    display: none; 
+}
+
+.avaliacao-detalhe .nota {
+    font-size: 18px;
+    font-weight: bold;
+    color: #f57c00; /* Laranja */
+    margin-bottom: 15px;
+}
+
+.avaliacao-detalhe .comentario {
+    font-style: italic;
+    color: #333;
+    
+    /* ADICIONE ISTO: */
+    /* Garante que o comentário seja um bloco */
+    display: block; 
+    line-height: 1.5; /* Melhora a leitura */
+}

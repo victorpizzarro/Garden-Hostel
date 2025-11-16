@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta - Garden Hostel</title>
+    
+    <link rel="icon" type="image/svg+xml" href="imagens/logo-icon.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="painel-page">
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="imagens/logo-icon.svg" alt="Logo Garden Hostel" class="logo-img">
+                </a>
+            </div>
+            
+            <div class="header-login">
+                <div class="lang-switcher">
+                    <button id="btn-lang-pt" class="btn-lang active" aria-label="Mudar para Português">
+                        <img src="imagens/flag-br.svg" alt="Bandeira do Brasil">
+                    </button>
+                    <button id="btn-lang-en" class="btn-lang" aria-label="Mudar para Inglês">
+                        <img src="imagens/flag-us.svg" alt="Bandeira dos EUA">
+                    </button>
+                </div>
+                <div class="user-info">
+                    <span id="user-welcome" data-key="saudacao">Olá, ...</span>
+                    <a href="#" id="btn-logout" class="btn-logout" data-key="btn-sair">(Sair)</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="painel-body-wrapper">
+        
+        <nav class="sidebar">
+            <h3 data-key="menu-titulo">Minha Conta</h3>
+            <div class="sidebar-nav">
+                <a href="#minhas-reservas" id="nav-reservas" class="active" data-key="menu-reservas">Minhas Reservas</a>
+                <a href="#meu-perfil" id="nav-perfil" data-key="menu-perfil">Meu Perfil</a>
+            </div>
+        </nav>
+
+        <main class="painel-main-content">
+
+            <section id="conteudo-reservas">
+                <h1 data-key="cliente-reservas-titulo">Minhas Reservas</h1>
+                <div id="reservas-lista">
+                    </div>
+            </section>
+
+            <section id="conteudo-perfil" class="hidden">
+
+                <form class="login-form" id="form-perfil">
+                    
+                    <div id="perfil-message" class="error-message"></div>
+
+                    <h3 data-key="perfil-dados-pessoais">Dados Pessoais</h3>
+                    
+                    <div class="form-field">
+                        <label for="perfil-celular" data-key="reg-celular">Celular (com DDD)</label>
+                        <input type="tel" id="perfil-celular" disabled>
+                        <div class="field-error" id="perfil-celular-error"></div>
+                    </div>
+                    
+                    <h3 data-key="perfil-endereco">Meu Endereço (Opcional)</h3>
+                    
+                    <div class="form-field">
+                        <label for="perfil-cep" data-key="perfil-cep">CEP</label>
+                        <input type="text" id="perfil-cep" disabled>
+                    </div>
+                    <div class="form-field">
+                        <label for="perfil-logradouro" data-key="perfil-logradouro">Logradouro</label>
+                        <input type="text" id="perfil-logradouro" disabled>
+                    </div>
+
+                    <h3 data-key="perfil-mudar-senha">Mudar Senha</h3>
+                    <div class="form-field">
+                        <label for="perfil-senha-antiga" data-key="perfil-senha-antiga">Senha Antiga</label>
+                        <input type="password" id="perfil-senha-antiga" disabled>
+                    </div>
+                    <div class="form-field">
+                        <label for="perfil-nova-senha" data-key="perfil-nova-senha">Nova Senha</label>
+                        <input type="password" id="perfil-nova-senha" disabled>
+                    </div>
+                    <div class="field-error" id="perfil-senha-error"></div>
+                    
+                    <div class="perfil-botoes-wrapper" id="perfil-botoes-wrapper">
+                        <button id="btn-editar-perfil" class="btn btn-login-submit" data-key="perfil-btn-editar">Editar Perfil</button>
+                        <button type="button" id="btn-salvar-perfil" class="btn btn-login-submit hidden" data-key="perfil-btn-salvar">Salvar Alterações</button>
+                        <button id="btn-cancelar-edicao" class="btn btn-cancelar hidden" data-key="perfil-btn-cancelar-edicao">Cancelar</button>
+                    </div>
+                </form>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="modal-avaliacao" class="modal-overlay">
+        <form class="login-form" id="form-avaliacao">
+            <button type="button" class="modal-close-form" id="modal-avaliacao-close">×</button>
+            <h2 class="form-title" data-key="aval-titulo">Avalie sua Estadia</h2>
+            <div id="avaliacao-message" class="error-message"></div>
+            <input type="hidden" id="avaliacao-reserva-id" value="">
+            <div class="form-field">
+                <label for="avaliacao-nota" data-key="aval-nota">Nota (1 a 5)</label>
+                <select id="avaliacao-nota">
+                    <option value="5">5 Estrelas (Excelente)</option>
+                    <option value="4">4 Estrelas (Bom)</option>
+                    <option value="3">3 Estrelas (Razoável)</option>
+                    <option value="2">2 Estrelas (Ruim)</option>
+                    <option value="1">1 Estrela (Péssimo)</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="avaliacao-comentario" data-key="aval-comentario">Comentário</label>
+                <textarea id="avaliacao-comentario" rows="4"></textarea>
+            </div>
+            <button type="button" id="btn-enviar-avaliacao" class="btn btn-login-submit" data-key="aval-btn-enviar">Enviar Avaliação</button>
+        </form>
+    </div>
+
+    <div id="modal-alerta" class="modal-overlay">
+        <div class="login-form" id="alerta-content">
+            <h2 class="form-title" id="alerta-titulo">Aviso</h2>
+            <p id="alerta-texto" style="text-align: center; font-size: 16px;">
+                </p>
+            <button type="button" id="alerta-ok-btn" class="btn btn-login-submit">OK</button>
+        </div>
+    </div>
+
+    <div id="modal-alerta" class="modal-overlay">
+        </div>
+
+    <div id="modal-confirmacao" class="modal-overlay">
+        <div class="login-form" id="confirm-content">
+            <h2 class="form-title" id="confirm-titulo">Confirmar Ação</h2>
+            <p id="confirm-texto" style="text-align: center; font-size: 16px;">
+                Tem certeza?
+            </p>
+            
+            <div class="confirm-actions">
+                <button type="button" id="confirm-btn-sim" class="btn btn-login-submit">Sim</button>
+                <button type="button" id="confirm-btn-nao" class="btn btn-cancelar">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script_cliente.js"></script>
+</body>
+</html>

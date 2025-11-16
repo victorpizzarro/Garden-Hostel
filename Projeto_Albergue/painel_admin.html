@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gestão - Garden Hostel</title>
+    
+    <link rel="icon" type="image/svg+xml" href="imagens/logo-icon.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="painel-page">
+    <header class="main-header">
+        <div class="container">
+            
+            <div class="logo">
+                <a href="index.html">
+                    <img src="imagens/logo-icon.svg" alt="Logo Garden Hostel" class="logo-img">
+                </a>
+            </div>
+            
+            <div class="header-login">
+                
+                <div class="lang-switcher">
+                    <button id="btn-lang-pt" class="btn-lang active" aria-label="Mudar para Português">
+                        <img src="imagens/flag-br.svg" alt="Bandeira do Brasil">
+                    </button>
+                    <button id="btn-lang-en" class="btn-lang" aria-label="Mudar para Inglês">
+                        <img src="imagens/flag-us.svg" alt="Bandeira dos EUA">
+                    </button>
+                </div>
+
+                <div class="user-info">
+                    <span id="user-welcome" data-key="saudacao">Olá, ...</span>
+                    <a href="#" id="btn-logout" class="btn-logout" data-key="btn-sair">(Sair)</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="painel-body-wrapper">
+        
+        <nav class="sidebar">
+            <h3 data-key="admin-menu-titulo">Gestão</h3>
+            <div class="sidebar-nav">
+                <a href="#recepcao" id="nav-recepcao" class="active" data-key="admin-menu-recepcao">Recepção</a>
+                <a href="#clientes" id="nav-clientes" data-key="admin-menu-clientes">Clientes</a>
+                <a href="#reservas" id="nav-reservas" data-key="admin-menu-reservas">Reservas</a>
+                
+                <a href="#gestao-quartos" id="nav-gestao-quartos" data-key="admin-menu-quartos">Gestão de Quartos</a>
+                <a href="#gestao-vagas" id="nav-gestao-vagas" data-key="admin-menu-vagas">Gestão de Vagas</a>
+                <a href="#moderacao" id="nav-moderacao" data-key="admin-menu-moderacao">Moderação</a>
+                <a href="#termos" id="nav-termos" data-key="admin-menu-termos">Termos de Uso</a>
+            </div>
+        </nav>
+
+        <main class="painel-main-content">
+
+            <section id="conteudo-recepcao">
+                <h1 data-key="admin-recepcao-titulo">Recepção</h1>
+                <div class="card">
+                    <h2 data-key="recepcao-checkin-titulo">Check-ins do Dia</h2>
+                    <div id="checkins-lista" class="painel-lista">
+                        <p data-key="recepcao-carregando">Carregando check-ins...</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 data-key="recepcao-checkout-titulo">Check-outs e Consumo</h2>
+                    <div id="checkouts-lista" class="painel-lista">
+                        <p data-key="recepcao-carregando">Carregando check-outs...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conteudo-clientes" class="hidden">
+                <h1 data-key="admin-clientes-titulo">Clientes</h1>
+                <div class="card">
+                    <h2 data-key="clientes-buscar-titulo">Buscar Cliente para Nova Reserva</h2>
+                    <div class="form-group">
+                        <input type="text" id="cliente-busca-termo" placeholder="Nome, Email ou Documento">
+                        <button id="btn-buscar-cliente" class="btn btn-primary" data-key="clientes-btn-buscar">Buscar</button>
+                    </div>
+                    <div id="clientes-lista-busca" class="painel-lista">
+                        <p data-key="clientes-nenhum-selecionado">Nenhum cliente selecionado.</p>
+                    </div>
+                    
+                    <div id="form-nova-reserva-balcao" class="card hidden">
+                        <h3 data-key="balcao-reserva-titulo">Nova Reserva de Balcão para: <span id="cliente-selecionado-nome"></span></h3>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="balcao-checkin" data-key="balcao-checkin">Check-in:</label>
+                                <input type="datetime-local" id="balcao-checkin" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="balcao-checkout" data-key="balcao-checkout">Check-out:</label>
+                                <input type="datetime-local" id="balcao-checkout" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="balcao-tipo-quarto" data-key="balcao-tipo-quarto">Tipo de Quarto:</label>
+                            <select id="balcao-tipo-quarto" required>
+                                <option value="" data-key="balcao-selecione-tipo">Selecione um tipo de quarto</option>
+                                <option value="FEMININO" data-key="quarto-tipo-feminino">Feminino</option>
+                                <option value="MASCULINO" data-key="quarto-tipo-masculino">Masculino</option>
+                                <option value="MISTO" data-key="quarto-tipo-misto">Misto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="balcao-num-hospedes" data-key="balcao-num-hospedes">Número de Hóspedes:</label>
+                            <input type="number" id="balcao-num-hospedes" min="1" value="1" required>
+                        </div>
+                        <button id="btn-balcao-verificar-vagas" class="btn btn-secondary" data-key="balcao-btn-verificar">Verificar Vagas</button>
+                        
+                        <div id="balcao-vagas-disponiveis" class="painel-lista hidden">
+                            <h4 data-key="balcao-vagas-encontradas">Vagas Disponíveis:</h4>
+                            <div id="balcao-vagas-lista">
+                                </div>
+                            <button id="btn-balcao-confirmar-reserva" class="btn btn-primary hidden" data-key="balcao-btn-confirmar">Confirmar Reserva</button>
+                        </div>
+                        <p id="balcao-message" class="message-info hidden"></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conteudo-reservas" class="hidden">
+                <h1 data-key="admin-reservas-titulo">Todas as Reservas</h1>
+                <div class="card">
+                    <h2 data-key="reservas-buscar-titulo">Buscar Reservas</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="reserva-busca-status" data-key="reservas-status">Status:</label>
+                            <select id="reserva-busca-status">
+                                <option value="" data-key="reservas-todos-status">Todos</option>
+                                <option value="PENDENTE" data-key="status-PENDENTE">PENDENTE</option>
+                                <option value="CONFIRMADA" data-key="status-CONFIRMADA">CONFIRMADA</option>
+                                <option value="CHECKIN" data-key="status-CHECKIN">CHECK-IN</option>
+                                <option value="FINALIZADA" data-key="status-FINALIZADA">FINALIZADA</option>
+                                <option value="CANCELADA" data-key="status-CANCELADA">CANCELADA</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reserva-busca-cliente" data-key="reservas-cliente">Cliente (Nome, Email ou Doc.):</label>
+                            <input type="text" id="reserva-busca-cliente">
+                        </div>
+                        <div class="form-group">
+                            <label for="reserva-busca-checkin" data-key="reservas-checkin-min">Check-in Mínimo:</label>
+                            <input type="date" id="reserva-busca-checkin">
+                        </div>
+                        <div class="form-group">
+                            <label for="reserva-busca-checkout" data-key="reservas-checkout-max">Check-out Máximo:</label>
+                            <input type="date" id="reserva-busca-checkout">
+                        </div>
+                    </div>
+                    <button id="btn-buscar-reservas" class="btn btn-primary" data-key="clientes-btn-buscar">Buscar Reservas</button>
+                    
+                    <div id="todas-reservas-lista" class="painel-lista">
+                        <p data-key="reservas-nenhuma-encontrada">Nenhuma reserva encontrada.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conteudo-gestao-quartos" class="hidden">
+                <h1 data-key="admin-quartos-titulo">Gestão de Quartos</h1>
+                
+                <div class="card">
+                    <h2 data-key="quartos-lista-titulo">Quartos Cadastrados</h2>
+                    <button id="btn-novo-quarto" class="btn btn-success" data-key="quartos-btn-novo">Novo Quarto</button>
+                    <div id="quartos-lista" class="painel-lista">
+                        <p data-key="quartos-nenhum-cadastrado">Nenhum quarto cadastrado.</p>
+                    </div>
+                </div>
+
+                <div id="modal-quarto-form" class="modal-overlay">
+                     <div class="login-form" id="modal-form-content">
+                        <form id="form-quarto">
+                            <h2 id="quarto-form-titulo" class="form-title" data-key="quartos-modal-titulo-novo">Novo Quarto</h2>
+                                    
+                            <p id="quarto-form-message" class="error-message" style="display: none;"></p>
+
+                            <input type="hidden" id="quarto-id">
+                                    
+                             <div class="form-field">
+                                <label for="quarto-nome" data-key="quartos-numero">Nome do Quarto (ex: Quarto 1, Suíte Lapa)</label>
+                                <input type="text" id="quarto-nome" required>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="quarto-desc-pt" data-key="quartos-desc-pt">Descrição (PT-BR)</label>
+                                <textarea id="quarto-desc-pt" rows="2"></textarea>
+                            </div>
+                            <div class="form-field">
+                                <label for="quarto-desc-en" data-key="quartos-desc-en">Descrição (EN)</label>
+                                <textarea id="quarto-desc-en" rows="2"></textarea>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label for="quarto-tipo" data-key="quartos-tipo">Tipo</label>
+                                    <select id="quarto-tipo" required>
+                                        <option value="" data-key="balcao-selecione-tipo">Selecione...</option>
+                                        <option value="MISTO" data-key="quarto-tipo-misto">Misto</option>
+                                        <option value="FEMININO" data-key="quarto-tipo-feminino">Feminino</option>
+                                        <option value="MASCULINO" data-key="quarto-tipo-masculino">Masculino</option>
+                                    </select>
+                                </div>
+                                <div class="form-field">
+                                    <label for="quarto-capacidade" data-key="quartos-capacidade">Capacidade</label>
+                                    <input type="number" id="quarto-capacidade" min="1" required>
+                                </div>
+                                </div>
+                                    
+                            <div class="form-field">
+                                <label for="quarto-preco-diaria" data-key="quartos-preco">Preço por Diária (R$)</label>
+                                <input type="number" id="quarto-preco-diaria" step="0.01" min="0.01" required>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-cancelar" id="btn-fechar-quarto-modal" data-key="quartos-btn-cancelar">Cancelar</button>
+                                <button type="submit" class="btn btn-login-submit" data-key="quartos-btn-salvar">Salvar Quarto</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conteudo-gestao-vagas" class="hidden">
+                <h1 data-key="admin-menu-vagas">Gestão de Vagas</h1>
+                <p>Em desenvolvimento...</p>
+            </section>
+            <section id="conteudo-moderacao" class="hidden">
+                <h1 data-key="admin-menu-moderacao">Moderação de Avaliações</h1>
+                <p>Em desenvolvimento...</p>
+            </section>
+            <section id="conteudo-termos" class="hidden">
+                <h1 data-key="admin-menu-termos">Termos de Uso</h1>
+                <p>Em desenvolvimento...</p>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="modal-alerta" class="modal-overlay">
+        <div class="login-form" id="alerta-content">
+            <h2 class="form-title" id="alerta-titulo" data-key="alerta-titulo-aviso">Aviso</h2>
+            <p id="alerta-texto" style="text-align: center; font-size: 16px;">
+                </p>
+            <button type="button" id="alerta-ok-btn" class="btn btn-login-submit" data-key="alerta-btn-ok">OK</button>
+        </div>
+    </div>
+
+    <div id="modal-confirmacao" class="modal-overlay">
+        <div class="login-form" id="confirm-content">
+            <h2 class="form-title" id="confirm-titulo" data-key="alerta-titulo-aviso">Confirmar Ação</h2>
+            <p id="confirm-texto" style="text-align: center; font-size: 16px;" data-key="confirm-padrao">
+                Tem certeza?
+            </p>
+            
+            <div class="confirm-actions">
+                <button type="button" id="confirm-btn-sim" class="btn btn-login-submit" data-key="confirm-sim">Sim</button>
+                <button type="button" id="confirm-btn-nao" class="btn btn-cancelar" data-key="confirm-nao">Não</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/script_admin.js"></script>
+</body>
+</html>

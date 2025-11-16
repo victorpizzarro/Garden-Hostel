@@ -1,0 +1,85 @@
+/*
+==================================================
+    ARQUIVO PRINCIPAL DE ESTILOS - style.css
+    - Importa todos os componentes visuais do site
+    - Define estilos globais e comportamentos base
+==================================================
+*/
+
+/* --------------------------------------------- */
+/* 1. IMPORTA OS COMPONENTES DO LAYOUT */
+/* --------------------------------------------- */
+
+@import url('components/_header.css');
+@import url('components/_footer.css');
+@import url('components/_buttons.css');
+@import url('components/_forms.css');
+@import url('components/_cards.css');
+@import url('components/_layout.css');
+@import url('components/_beneficios.css');
+@import url('components/_modal.css');
+@import url('components/_lang_switcher.css');
+@import url('components/_login_page.css');
+@import url('components/_painel.css');
+@import 'components/_admin.css';
+@import url('components/_reserva.css');
+
+/* --------------------------------------------- */
+/* 2. ESTILOS GLOBAIS E PADRÕES DE SITE */
+/* --------------------------------------------- */
+
+/* 
+  Suaviza o movimento da rolagem ao clicar nos links de navegação
+*/
+html {
+    scroll-behavior: smooth;
+}
+
+/* 
+  Define a aparência base do corpo da página:
+*/
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+
+    background-color: #f4f4f4; /* fundo cinza claro */
+    color: #333; /* texto cinza escuro */
+
+    padding-top: 70px; /* evita sobreposição com o header fixo */
+}
+
+/* 
+  Container centralizado
+*/
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto; /* centraliza horizontalmente */
+}
+
+/* ==========================================================
+   HELPER DE TRADUÇÃO (Previne o "Flicker" / "Piscada")
+=========================================================== */
+
+/* 1. Esconde todos os textos estáticos por padrão.
+   Usamos 'visibility: hidden' para que eles ainda
+   ocupem espaço no layout, evitando que a página "pule".
+*/
+[data-key] {
+    visibility: hidden;
+}
+
+/* 2. Quando o JS adicionar a classe 'js-traduzido' ao <body>,
+   mostra magicamente todos os textos de uma vez.
+*/
+body.js-traduzido [data-key] {
+    visibility: visible;
+}
+
+/* Sobrescreve o padding-top global (de 70px)
+  apenas na página de login, removendo a barra de rolagem.
+*/
+body.login-page {
+    padding-top: 0;
+}

@@ -1,0 +1,18 @@
+/* --- 6. Rodapé --- */
+.main-footer {
+    text-align: center;
+    padding: 30px;
+    background-color: #0A1A3F;
+    color: #aaaaaa;
+    margin-top: 40px;
+    border-top: 3px solid #f57c00;
+}
+
+/* --- Barra de Rodapé (Página de Login) --- 
+.footer-bar {
+    background-color: #0d47a1; 
+    height: 50px; 
+    
+    /* CORREÇÃO: Impede que o rodapé encolha 
+    flex-shrink: 0; 
+}*/

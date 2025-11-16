@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Cadastro - Garden Hostel</title>
+    
+    <link rel="icon" type="image/svg+xml" href="imagens/logo-icon.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page"> <header class="main-header header-simple">
+        <div class="container">
+            
+            <div class="logo">
+                <a href="index.html">
+                    <img src="imagens/logo-icon.svg" alt="Logo Garden Hostel" class="logo-img">
+                </a>
+            </div>
+            
+            <div class="lang-switcher">
+                <button id="btn-lang-pt" class="btn-lang active" aria-label="Mudar para Português">
+                    <img src="imagens/flag-br.svg" alt="Bandeira do Brasil">
+                </button>
+                <button id="btn-lang-en" class="btn-lang" aria-label="Mudar para Inglês">
+                    <img src="imagens/flag-us.svg" alt="Bandeira dos EUA">
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <main class="login-container">
+
+        <div id="form-login-wrapper">
+            <form class="login-form" id="form-login">
+                <h2 class="form-title" data-key="login-titulo">Acessar minha conta</h2>
+                
+                <div id="login-error-message" class="error-message"></div>
+                
+                <div class="form-field">
+                    <label for="login-email" data-key="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                
+                <div class="form-field">
+                    <label for="login-senha" data-key="login-senha">Senha</label>
+                    <input type="password" id="login-senha" required>
+                </div>
+                
+                <button type="button" id="btn-login-submit" class="btn btn-login-submit" data-key="login-btn-entrar">Entrar</button>
+                
+                <p class="form-switcher">
+                    <span data-key="login-nao-tem-conta">Ainda não tem conta?</span> 
+                    <a href="#" id="show-register" data-key="login-cadastre">Cadastre-se aqui</a>
+                </p>
+            </form>
+        </div>
+
+        <div id="form-register-wrapper" class="hidden">
+            <form class="login-form" id="form-register">
+                <h2 class="form-title" data-key="reg-titulo">Criar nova conta (RF08)</h2>
+
+                <div id="register-error-message" class="error-message"></div>
+
+                <div class="form-field">
+                    <label for="reg-nome" data-key="reg-nome">Nome Completo</label>
+                    <input type="text" id="reg-nome" required>
+                    <div class="field-error" id="reg-nome-error"></div>
+                </div>
+                
+                <div class="form-field">
+                    <label for="reg-email" data-key="reg-email">Email</label>
+                    <input type="email" id="reg-email" required>
+                    <div class="field-error" id="reg-email-error"></div>
+                </div>
+
+                <div class="form-field">
+                    <label for="reg-senha" data-key="reg-senha">Senha</label>
+                    <input type="password" id="reg-senha" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="reg-doc-tipo" data-key="reg-doc-tipo">Tipo de Documento</label>
+                    <select id="reg-doc-tipo">
+                        <option value="CPF">CPF</option>
+                        <option value="PASSAPORTE">Passaporte</option>
+                        <option value="IDENTIDADE">Identidade</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="reg-doc-num" data-key="reg-doc-num">Número do Documento</label>
+                    <input type="text" id="reg-doc-num" required>
+                    <div class="field-error" id="reg-doc-num-error"></div>
+                </div>
+
+                <div class="form-field">
+                    <label for="reg-nascimento" data-key="reg-nascimento">Data de Nascimento</label>
+                    <input type="date" id="reg-nascimento" required>
+                    <div class="field-error" id="reg-nascimento-error"></div>
+                </div>
+                
+                <div class="form-field">
+                    <label for="reg-celular" data-key="reg-celular">Celular (com DDD)</label>
+                    <input type="tel" id="reg-celular" required>
+                    <div class="field-error" id="reg-celular-error"></div>
+                </div>
+                
+                <button type="button" id="btn-register-submit" class="btn btn-login-submit" data-key="reg-btn-criar">Criar Conta</button>
+                
+                <p class="form-switcher">
+                    <span data-key="reg-ja-tem-conta">Já tem uma conta?</span> 
+                    <a href="#" id="show-login" data-key="reg-faca-login">Faça o login aqui</a>
+                </p>
+            </form>
+        </div>
+
+    </main>
+    
+    <footer class="main-footer">
+    </footer>
+
+    <script src="js/script_auth.js"></script>
+</body>
+</html>

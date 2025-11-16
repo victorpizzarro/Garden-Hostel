@@ -1,0 +1,152 @@
+/*
+    Estilos do cabeçalho principal (logo, navegação, botão de login)
+*/
+
+/* Define a barra principal do cabeçalho */
+.main-header {
+    background-color: #ffffff; /* Fundo branco */
+    border-bottom: 1px solid #dddddd;
+    padding: 3px 0;
+    position: fixed; /* Fixo no topo */
+    width: 100%;
+    top: 0;
+    z-index: 100; /* Garante que fique na frente de tudo */
+}
+
+/* Container que alinha o conteúdo do cabeçalho */
+.main-header .container {
+    display: flex; /* Coloca os itens um ao lado do outro */
+    justify-content: space-between; /* Espaça (logo na esquerda, menu no meio, login na direita) */
+    align-items: center; /* Alinha tudo verticalmente no centro */
+}
+
+/* Bloco do logo */
+.logo {
+    flex: 1;
+    font-size: 22px;
+    font-weight: bold;
+    color: #0d47a1;
+    display: flex;
+    align-items: center;
+}
+
+/* Imagem do logo */
+.logo-img {
+    height: 90px; /* Define a altura do logo */
+    width: 90px; /* Define a largura do logo */
+    margin-right: 10px;
+}
+
+.nav-wrapper {
+    /* CORREÇÃO: Faz o agrupador ocupar 1/3 do espaço */
+    flex: 1; 
+    
+    /* Centraliza o menu e as bandeiras DENTRO dele */
+    justify-content: center; 
+    
+    display: flex;
+    align-items: center;
+    gap: 25px; 
+}
+
+/* --- Estilos da Navegação --- */
+
+/* Estilo base pros links (Início, Acomodações, etc.) */
+.main-nav a {
+    text-decoration: none;
+    color: #555; /* Cor padrão do texto (cinza) */
+    margin: 0 15px;
+    font-size: 16px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    
+    /* Cria uma borda transparente.
+      Isso "guarda o espaço" pro sublinhado laranja,
+      impedindo que o menu "pule" quando o item fica ativo.
+    */
+    border-bottom: 2px solid transparent; 
+    
+    /* Animação para as mudanças de cor */
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Ao passar o mouse o texto fica laranja */
+.main-nav a:hover {
+    color: #f57c00;
+}
+
+/* Seção ativa (definido pelo JS): 
+  O sublinhado fica laranja, mas o texto continua cinza.
+*/
+.main-nav a.active {
+    border-bottom-color: #f57c00;
+}
+
+/* Seção ativa E com mouse em cima:
+  Tanto o texto quanto o sublinhado ficam laranja.
+*/
+.main-nav a.active:hover {
+    color: #f57c00;
+    border-bottom-color: #f57c00;
+}
+
+/* NOVO: Bloco do Botão de Login */
+.header-login {
+    flex: 1; /* Ocupa 1/3 do espaço */
+    display: flex;
+    justify-content: flex-end; /* Alinha tudo à direita */
+    align-items: center;
+    
+    /* Espaço entre as bandeiras e o botão de login */
+    gap: 30px; 
+}
+
+/* =================================================
+   VARIAÇÃO PARA PÁGINAS INTERNAS (como Login)
+================================================= */
+
+/* Quando o <header> tiver a classe .header-simple...
+*/
+
+.header-simple {
+    position: static; /* Faz o header deixar de ser "fixo" */
+}
+
+/* 1. Alinha os itens (Logo na esquerda, Idioma na direita) */
+.header-simple .container {
+    justify-content: space-between;
+}
+
+/* 2. Esconde o menu de navegação central */
+.header-simple .main-nav {
+    display: none;
+}
+
+/* 3. Esconde o botão de login (se ele existir) */
+.header-simple .header-login {
+    display: none;
+}
+
+/* =================================================
+   ESTILOS DO PAINEL (CLIENTE / ADMIN)
+================================================= */
+
+/* Container para "Olá, Nome" e "Sair" */
+.user-info {
+    color: #333;
+    font-size: 15px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* Link de Logout "(Sair)" */
+.btn-logout {
+    color: #f57c00; /* Laranja */
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: 8px;
+}
+.btn-logout:hover {
+    text-decoration: underline;
+}

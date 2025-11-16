@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Hostel - Santa Teresa</title>
+    
+    <link rel="icon" type="image/svg+xml" href="imagens/logo-icon.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Hospede-se no Garden Hostel Santa Teresa, no Rio de Janeiro. Quartos confortáveis, ótima localização e benefícios exclusivos.">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            
+            <div class="logo">
+                <a href="#inicio">
+                    <img src="imagens/logo-icon.svg" alt="Logo Garden Hostel" class="logo-img">
+                </a>
+            </div>
+
+            <nav class="main-nav" aria-label="Navegação principal">
+                <a href="#inicio" class="active" data-key="nav-inicio">Início</a>
+                <a href="#acomodacoes" data-key="nav-acomodacoes">Acomodações</a>
+                <a href="#beneficios" data-key="nav-beneficios">Benefícios</a>
+                <a href="#localizacao" data-key="nav-localizacao">Localização</a>
+                <a href="#avaliacoes" data-key="nav-avaliacoes">Avaliações</a>
+            </nav>
+
+            <div class="header-login">
+                
+                <div class="lang-switcher">
+                    <button id="btn-lang-pt" class="btn-lang active" aria-label="Mudar para Português">
+                        <img src="imagens/flag-br.svg" alt="Bandeira do Brasil">
+                    </button>
+                    <button id="btn-lang-en" class="btn-lang" aria-label="Mudar para Inglês">
+                        <img src="imagens/flag-us.svg" alt="Bandeira dos EUA">
+                    </button>
+                </div>
+
+                <a href="login.html" class="btn btn-login" data-key="btn-login">Login / Cadastro</a>
+            </div>
+
+        </div>
+    </header>
+
+    <section id="inicio" class="hero-banner">
+        <div class="hero-content">
+            <h1 data-key="hero-titulo">SANTA TERESA</h1>
+            <p data-key="hero-subtitulo">Hospede-se no aconchegante bairro do RJ</p>
+        </div>
+        
+        <div class="search-bar-container">
+            <form class="search-bar" id="form-busca">
+                <div class="search-field">
+                    <label for="checkin" data-key="label-checkin">Check-in</label>
+                    <input type="date" id="checkin" name="checkin">
+                </div>
+                <div class="search-field">
+                    <label for="checkout" data-key="label-checkout">Check-out</label>
+                    <input type="date" id="checkout" name="checkout">
+                </div>
+                <button type="button" class="btn btn-buscar" id="btn-buscar" data-key="btn-buscar">Buscar</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="acomodacoes" class="section-container">
+        <header class="section-header">
+            <div class="section-header-text">
+                <h2 class="section-title" data-key="acomodacoes-titulo">Temos o quarto ideal para você</h2>
+                <p class="section-subtitle" data-key="acomodacoes-subtitulo">
+                    Descubra o melhor lugar para se hospedar no Rio de Janeiro: Garden Hostel Santa Teresa!
+                </p>
+            </div>
+            <div class="section-header-action">
+                <a href="#form-busca" class="btn btn-reserve-agora" data-key="btn-reserve">Reserve Agora!</a>
+            </div>
+        </header>
+        
+        <div class="card-grid">
+            <article class="acomodacao-card">
+                <img src="imagens/quarto-4-camas.jpg" alt="Dormitório Misto com 4 Camas" class="card-img">
+                <div class="card-content">
+                    <h3 data-key="card1-titulo">Dormitório Misto com 4 Camas</h3>
+                    <p data-key="card1-texto">Quarto com ar-condicionado, cortinas individuais, armário com cadeado e banheiro privativo.</p>
+                    <a href="#form-busca" class="btn btn-card" data-key="btn-confira">Confira!</a>
+                </div>
+            </article>
+
+            <article class="acomodacao-card">
+                <img src="imagens/quarto-8-camas.jpg" alt="Dormitório Misto com 8 Camas" class="card-img">
+                <div class="card-content">
+                    <h3 data-key="card2-titulo">Dormitório Misto com 8 Camas</h3>
+                    <p data-key="card2-texto">Ambiente confortável e climatizado, com camas de casal tipo beliche e armário individual.</p>
+                    <a href="#form-busca" class="btn btn-card" data-key="btn-confira">Confira!</a>
+                </div>
+            </article>
+
+            <article class="acomodacao-card">
+                <img src="imagens/quarto-12-camas.jpg" alt="Dormitório Misto com 12 Camas" class="card-img">
+                <div class="card-content">
+                    <h3 data-key="card3-titulo">Dormitório Misto com 12 Camas</h3>
+                    <p data-key="card3-texto">Espaço amplo e climatizado, ideal para grupos, com tomadas, iluminação e cortinas individuais.</p>
+                    <a href="#form-busca" class="btn btn-card" data-key="btn-confira">Confira!</a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section id="beneficios" class="section-container">
+        <header class="section-header">
+            <h2 class="section-title" data-key="beneficios-titulo">Nossos benefícios</h2>
+        </header>
+
+        <div class="beneficios-icon-bar">
+            <div class="beneficio-item"><img src="imagens/icon-wifi.svg" alt=""><span data-key="beneficio1">Wi-Fi grátis</span></div>
+            <div class="beneficio-item"><img src="imagens/icon-cama.svg" alt=""><span data-key="beneficio2">Excelentes acomodações</span></div>
+            <div class="beneficio-item"><img src="imagens/icon-ar.svg" alt=""><span data-key="beneficio3">Ar condicionado</span></div>
+            <div class="beneficio-item"><img src="imagens/icon-lounge.svg" alt=""><span data-key="beneficio4">Lounge</span></div>
+            <div class="beneficio-item"><img src="imagens/icon-churrasqueira.svg" alt=""><span data-key="beneficio5">Copa e churrasqueira</span></div>
+        </div>
+
+        <p class="beneficios-texto" data-key="beneficios-texto">
+            O Garden Hostel oferece ambientes confortáveis e funcionais, com lounge, área de coworking,
+            estacionamento, churrasqueira, banheiros equipados e muito mais.
+        </p>
+
+        <div class="beneficios-grid">
+            <img src="imagens/beneficio-foto-1.jpg" alt="Ambiente interno 1" class="beneficio-img">
+            <img src="imagens/beneficio-foto-2.jpg" alt="Ambiente interno 2" class="beneficio-img">
+            <img src="imagens/beneficio-foto-3.jpg" alt="Ambiente interno 3" class="beneficio-img">
+            <img src="imagens/beneficio-foto-4.jpg" alt="Ambiente interno 4" class="beneficio-img">
+            <img src="imagens/beneficio-foto-5.jpg" alt="Ambiente interno 5" class="beneficio-img">
+            <img src="imagens/beneficio-foto-6.jpg" alt="Ambiente interno 6" class="beneficio-img">
+            <img src="imagens/beneficio-foto-7.jpg" alt="Ambiente interno 7" class="beneficio-img">
+            <img src="imagens/beneficio-foto-8.jpg" alt="Ambiente interno 8" class="beneficio-img">
+            <img src="imagens/beneficio-foto-9.jpg" alt="Ambiente interno 9" class="beneficio-img">
+        </div>
+    </section>
+    
+    <section id="localizacao" class="section-container section-map">
+        <header class="section-header">
+            <h2 class="section-title" data-key="localizacao-titulo">Nossa Localização</h2>
+        </header>
+        <p data-key="localizacao-texto">
+            Estamos localizados na Rua Francisca de Andrade, em Santa Teresa — um dos bairros mais charmosos e culturais do Rio de Janeiro.
+        </p>
+        
+        <div class="map-container">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3674.703952316059!2d-43.185446!3d-22.9242879!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x997f9d3e95a933%3A0x4f3a6ca673d5679e!2sR.%20Francisca%20de%20Andrade%2C%20Rio%20de%20Janeiro%20-%20RJ%2C%2022211-220!5e0!3m2!1spt-BR!2sbr!4v1763013788199!5m2!1spt-BR!2sbr"
+                width="100%" height="450"
+                style="border:0;"
+                allowfullscreen
+                loading="lazy"
+                title="Mapa do Garden Hostel em Santa Teresa"
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </section>
+
+    <section id="avaliacoes" class="section-container section-reviews">
+        <header class="section-header">
+            <h2 class="section-title" data-key="avaliacoes-titulo">O que dizem nossos hóspedes</h2>
+            <div class="carousel-nav">
+                <button id="review-prev" class="btn-carousel" aria-label="Avaliação anterior"><</button>
+                <button id="review-next" class="btn-carousel" aria-label="Próxima avaliação">></button>
+            </div>
+        </header>
+        
+        <div class="avaliacoes-scroller" id="avaliacoes-container"></div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p data-key="footer-copyright">© 2025 Garden Hostel. Todos os direitos reservados.</p>
+            <p data-key="footer-endereco">Rua Francisca de Andrade, 123 - Rio de Janeiro, RJ</p>
+        </div>
+    </footer>
+
+    <div id="modal-galeria" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Galeria de imagens">
+        <button class="modal-close" id="modal-close" aria-label="Fechar galeria">×</button>
+        <button class="modal-prev" id="modal-prev" aria-label="Imagem anterior"><</button>
+        <button class="modal-next" id="modal-next" aria-label="Próxima imagem">></button>
+        
+        <div class="modal-content">
+            <img src="" alt="Imagem ampliada da galeria" id="modal-imagem">
+        </div>
+    </div>
+
+    <script src="js/script_index.js"></script>
+</body>
+</html>

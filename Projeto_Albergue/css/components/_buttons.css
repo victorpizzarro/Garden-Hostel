@@ -1,0 +1,65 @@
+/*
+    Estilos globais para todos os botões do site
+*/
+
+/* .btn (Classe Base)
+  Define o visual padrão que todos os botões (Login, Buscar, Cards)
+  vão compartilhar
+*/
+.btn {
+    /* Espaçamento interno */
+    padding: 10px 20px;
+    
+    /* Remove a borda padrão do navegador */
+    border: none;
+    border-radius: 4px; /* Cantos arredondados */
+    
+    /* Estilos do texto */
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff; /* Texto branco */
+    text-decoration: none; /* Remove sublinhado (pro caso de ser um <a>) */
+    text-align: center;
+    
+    /* Cor de fundo principal */
+    background-color: #f57c00; 
+    
+    /* Transforma o cursor em "mãozinha" */
+    cursor: pointer;
+}
+
+/* Efeito ao passar o mouse em qualquer botão */
+.btn:hover {
+    background-color: #e65100; /* Laranja mais escuro */
+}
+
+/*
+    Variações dos Botões
+    (Classes específicas que modificam o .btn base)
+*/
+
+/* Botão de Login (no cabeçalho) */
+.btn-login {
+    font-size: 15px;
+}
+
+/* Botão "Buscar" (na barra de busca) */
+.btn-buscar {
+    padding: 15px 30px; /* Um pouco maior */
+    font-size: 18px;
+    
+    /* Alinha o botão na base dos campos de data */
+    align-self: flex-end; 
+}
+
+/* Botão "Reserve Agora!" (na seção de acomodações) */
+.btn-reserve-agora {
+    padding: 15px 25px;
+    font-size: 18px;
+}
+
+/* Botão "Confira!" (dentro dos cards de quarto) */
+.btn-card {
+    display: block; /* Faz o botão ocupar 100% da largura do card */
+    margin-top: 15px; /* Espaço entre o texto e o botão */
+}

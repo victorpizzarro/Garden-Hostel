@@ -1,0 +1,41 @@
+/* --- 9. Estilo do Seletor de Idioma (Bandeiras) --- */
+.lang-switcher {
+    display: flex;
+    gap: 8px; /* Espaço entre as duas bandeiras */
+}
+
+.btn-lang {
+    background-color: transparent;
+    border: 2px solid #ddd; /* Borda padrão (cinza) */
+    border-radius: 50%; /* Deixa o botão redondo */
+    padding: 4px;
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    
+    /* Centraliza a imagem da bandeira */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.btn-lang img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Garante que a bandeira redonda preencha */
+    border-radius: 50%;
+}
+
+/* Quando o botão NÃO está ativo e passamos o mouse */
+.btn-lang:not(.active):hover {
+    border-color: #aaa;
+}
+
+/* Quando o botão está ATIVO (idioma selecionado) */
+.btn-lang.active {
+    border-color: #f57c00; /* Borda laranja */
+    /* (Opcional) Adiciona um brilho sutil */
+    box-shadow: 0 0 8px rgba(245, 124, 0, 0.4); 
+}
