@@ -1,113 +1,160 @@
 <?php
-/*
-    Endpoint pro Admin Master gerenciar (CRUD) os Quartos
-    Método: GET (pra Listar) ou POST (pra Criar, Alterar, Excluir)
-    GET ?acao=listar
-    POST { "acao": "criar", "dados": { ... } }
-    POST { "acao": "alterar", "id": X, "dados": { ... } }
-    POST { "acao": "excluir", "id": X }
-*/
+/**
+ * Arquivo: api/admin/quarto_crud.php
+ * Descrição: Endpoint para operações CRUD de quartos
+ */
 
-// 1. Inclui o arquivo de configuração
 require_once '../config.php';
 
-// 2. Verifica se o usuário é ADMIN_MASTER
-if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 'ADMIN_MASTER') {
-    http_response_code(401); // Unauthorized
-    echo json_encode([
-        'status' => 'erro',
-        'mensagem' => 'Acesso negado. Apenas o Admin Master pode gerenciar quartos.'
-    ]);
+// Verifica se o usuário está logado
+if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] != 'ATENDENTE' && $_SESSION['usuario_tipo'] != 'ADMIN_MASTER')) {
+    http_response_code(401);
+    echo json_encode(['status' => 'erro', 'mensagem' => 'Acesso negado.']);
     exit();
 }
 
-$metodo = $_SERVER['REQUEST_METHOD'];
-$acao = '';
 
-if ($metodo == 'GET') {
-    $acao = isset($_GET['acao']) ? $_GET['acao'] : 'listar';
-} else if ($metodo == 'POST') {
-    $acao = isset($dadosRecebidos['acao']) ? $dadosRecebidos['acao'] : '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $json = file_get_contents('php://input');
+    $dadosRecebidos = json_decode($json, true);
+    $acao = $dadosRecebidos['acao'];
+} else {
+    $acao = isset($_GET['acao']) ? $_GET['acao'] : '';
 }
 
-// 3. Lógica CRUD
-switch ($acao) {
-    // --- LISTAR (READ) ---
-    case 'listar':
-        $sql = "SELECT * FROM Quartos ORDER BY nome ASC";
-        $resultado = $conexao->query($sql);
-        $quartos = [];
-        while ($linha = $resultado->fetch_assoc()) {
-            $quartos[] = $linha;
-        }
-        echo json_encode($quartos);
-        break;
+try {
+    switch($acao) {
+        case 'listar':
+            listarQuartos();
+            break;
+        case 'criar':
+            criarQuarto();
+            break;
+        case 'alterar':
+            alterarQuarto();
+            break;
+        case 'excluir':
+            excluirQuarto();
+            break;
+        default:
+            throw new Exception('Ação não especificada. Use "listar", "criar", "alterar" ou "excluir".');
+    }
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode(['status' => 'erro', 'mensagem' => $e->getMessage()]);
+}
 
-    // --- CRIAR (CREATE) ---
-    case 'criar':
-        $dados = $dadosRecebidos['dados'];
-        $sql = "INSERT INTO Quartos (nome, descricao_pt, descricao_en, capacidade, tem_banheiro, preco_diaria)
-                VALUES ('{$dados['nome']}', '{$dados['descricao_pt']}', '{$dados['descricao_en']}', {$dados['capacidade']}, {$dados['tem_banheiro']}, {$dados['preco_diaria']})";
-        
-        if ($conexao->query($sql)) {
-            echo json_encode(['status' => 'sucesso', 'mensagem' => 'Quarto criado.', 'id' => $conexao->insert_id]);
-        } else {
-            http_response_code(500);
-            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao criar quarto: ' . $conexao->error]);
-        }
-        break;
+function listarQuartos() {
+    global $conexao;
+    
+    $sql = "SELECT id, nome, capacidade, preco_diaria, tipo, tem_banheiro,
+                   descricao_pt, descricao_en, data_entrada, data_saida
+            FROM Quartos 
+            ORDER BY nome";
+    
+    $result = $conexao->query($sql);
+    $quartos = [];
+    
+    while ($linha = $result->fetch_assoc()) {
+        $quartos[] = $linha;
+    }
+    
+    echo json_encode($quartos);
+}
 
-    // --- ALTERAR (UPDATE) ---
-    case 'alterar':
-        $id = $dadosRecebidos['id'];
-        $dados = $dadosRecebidos['dados'];
-        
-        $sql = "UPDATE Quartos SET
-                    nome = '{$dados['nome']}',
-                    descricao_pt = '{$dados['descricao_pt']}',
-                    descricao_en = '{$dados['descricao_en']}',
-                    capacidade = {$dados['capacidade']},
-                    tem_banheiro = {$dados['tem_banheiro']},
-                    preco_diaria = {$dados['preco_diaria']}
-                WHERE id = $id";
+function criarQuarto() {
+    global $conexao, $dadosRecebidos;
+    
+    $dados = $dadosRecebidos['dados'];
+    
+    $sql = "INSERT INTO Quartos (nome, capacidade, preco_diaria, tipo, tem_banheiro,
+                                descricao_pt, descricao_en, data_entrada, data_saida)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("sidsissss", 
+        $dados['nome'],
+        $dados['capacidade'],
+        $dados['preco_diaria'],
+        $dados['tipo'],
+        $dados['tem_banheiro'],
+        $dados['descricao_pt'],
+        $dados['descricao_en'],
+        $dados['data_entrada'],
+        $dados['data_saida']
+    );
+    
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'sucesso', 'mensagem' => 'Quarto criado com sucesso.']);
+    } else {
+        throw new Exception('Erro ao criar quarto: ' . $stmt->error);
+    }
+    
+    $stmt->close();
+}
 
-        if ($conexao->query($sql)) {
-            echo json_encode(['status' => 'sucesso', 'mensagem' => 'Quarto alterado.']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao alterar quarto: ' . $conexao->error]);
-        }
-        break;
+function alterarQuarto() {
+    global $conexao, $dadosRecebidos;
+    
+    $id = $dadosRecebidos['id'];
+    $dados = $dadosRecebidos['dados'];
+    
+    $sql = "UPDATE Quartos SET 
+                nome = ?, capacidade = ?, preco_diaria = ?, tipo = ?, tem_banheiro = ?,
+                descricao_pt = ?, descricao_en = ?, data_entrada = ?, data_saida = ?
+            WHERE id = ?";
+    
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("sidsissssi", 
+        $dados['nome'],
+        $dados['capacidade'],
+        $dados['preco_diaria'],
+        $dados['tipo'],
+        $dados['tem_banheiro'],
+        $dados['descricao_pt'],
+        $dados['descricao_en'],
+        $dados['data_entrada'],
+        $dados['data_saida'],
+        $id
+    );
+    
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'sucesso', 'mensagem' => 'Quarto atualizado com sucesso.']);
+    } else {
+        throw new Exception('Erro ao atualizar quarto: ' . $stmt->error);
+    }
+    
+    $stmt->close();
+}
 
-    // --- EXCLUIR (DELETE) ---
-    case 'excluir':
-        $id = $dadosRecebidos['id'];
-
-        // Lógica de Exclusão
-        // 1. Checa se o quarto tem "filhos" (vagas)
-        $sql_check = "SELECT id FROM Vagas WHERE fk_quarto_id = $id";
-        $result_check = $conexao->query($sql_check);
-
-        if ($result_check->num_rows > 0) {
-            // Se tem vagas, não pode excluir
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'erro', 'mensagem' => 'Este quarto não pode ser excluído pois possui vagas cadastradas. Exclua as vagas primeiro.']);
-            exit();
-        }
-
-        // 2. Se não tem vagas, pode excluir
-        $sql_delete = "DELETE FROM Quartos WHERE id = $id";
-        if ($conexao->query($sql_delete)) {
-            echo json_encode(['status' => 'sucesso', 'mensagem' => 'Quarto excluído.']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao excluir quarto: ' . $conexao->error]);
-        }
-        break;
-
-    default:
-        http_response_code(400);
-        echo json_encode(['status' => 'erro', 'mensagem' => 'Ação não reconhecida.']);
-        break;
+function excluirQuarto() {
+    global $conexao, $dadosRecebidos;
+    
+    $id = $dadosRecebidos['id'];
+    
+    // Verifica se existem vagas associadas
+    $sql_check = "SELECT COUNT(*) as total FROM Vagas WHERE fk_quarto_id = ?";
+    $stmt_check = $conexao->prepare($sql_check);
+    $stmt_check->bind_param("i", $id);
+    $stmt_check->execute();
+    $result = $stmt_check->get_result();
+    $row = $result->fetch_assoc();
+    $stmt_check->close();
+    
+    if ($row['total'] > 0) {
+        throw new Exception('Não é possível excluir o quarto. Exclua as vagas primeiro.');
+    }
+    
+    $sql = "DELETE FROM Quartos WHERE id = ?";
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'sucesso', 'mensagem' => 'Quarto excluído com sucesso.']);
+    } else {
+        throw new Exception('Erro ao excluir quarto: ' . $stmt->error);
+    }
+    
+    $stmt->close();
 }
 ?>

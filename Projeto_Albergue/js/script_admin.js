@@ -1,7 +1,7 @@
 /**
  * Arquivo: /js/script_admin.js
  * Descrição: Lógica do Painel de Gestão (painel_admin.html)
- * (Versão 3.0 - Implementando Recepção e Clientes/Reserva Balcão)
+ * (Versão 4.0 - Implementando Gestão de Vagas e Datas de Quarto)
  */
 
 // ========================================================================
@@ -43,7 +43,7 @@ const dicionarioTextos = {
         'quartos-nenhum-cadastrado': 'Nenhum quarto cadastrado.',
         'quartos-modal-titulo-novo': 'Novo Quarto', 'quartos-modal-titulo-editar': 'Editar Quarto',
         'quartos-numero': 'Nome do Quarto:', 'quartos-tipo': 'Tipo:', 'quartos-capacidade': 'Capacidade (Número de camas):',
-        'quartos-preco': 'Preço por Diária (R$):', 'quartos-btn-salvar': 'Salvar Quarto',
+        'quartos-preco': 'Preço por Diária (R$):', 'quartos-data-entrada': 'Data de Entrada:', 'quartos-data-saida': 'Data de Saída:', 'quartos-saida-indefinida': 'Indefinido', 'quartos-btn-salvar': 'Salvar Quarto',
         'quartos-btn-cancelar': 'Cancelar', 'quartos-desc-pt': 'Descrição (PT-BR)', 'quartos-desc-en': 'Descrição (EN)',
         'alerta-titulo-aviso': 'Aviso', 'alerta-titulo-sucesso': 'Sucesso', 'alerta-titulo-erro': 'Erro',
         'confirm-sim': 'Sim', 'confirm-nao': 'Não', 'alerta-btn-ok': 'OK', 'confirm-padrao': 'Tem certeza?',
@@ -101,7 +101,7 @@ const dicionarioTextos = {
         'quartos-nenhum-cadastrado': 'No rooms registered.',
         'quartos-modal-titulo-novo': 'New Room', 'quartos-modal-titulo-editar': 'Edit Room',
         'quartos-numero': 'Room Name/Number:', 'quartos-tipo': 'Type:', 'quartos-capacidade': 'Capacity (Beds):',
-        'quartos-preco': 'Price per Night (R$):', 'quartos-btn-salvar': 'Save Room',
+        'quartos-preco': 'Price per Night (R$):', 'quartos-data-entrada': 'Entry Date:', 'quartos-data-saida': 'Exit Date:', 'quartos-saida-indefinida': 'Indefinite', 'quartos-btn-salvar': 'Save Room',
         'quartos-btn-cancelar': 'Cancel', 'quartos-desc-pt': 'Description (PT-BR)', 'quartos-desc-en': 'Description (EN)',
         'alerta-titulo-aviso': 'Notice', 'alerta-titulo-sucesso': 'Success', 'alerta-titulo-erro': 'Error',
         'confirm-sim': 'Yes', 'confirm-nao': 'No', 'alerta-btn-ok': 'OK', 'confirm-padrao': 'Are you sure?',
@@ -181,7 +181,7 @@ const confirmBtnNao = document.getElementById('confirm-btn-nao');
 
 function mostrarConfirmacao(mensagemKey, callback) {
     confirmTitulo.innerText = dicionarioTextos[idiomaAtual]['alerta-titulo-aviso'];
-    confirmTexto.innerText = dicionarioTextos[idiomaAtual][mensagemKey];
+    confirmTexto.innerText = dicionarioTextos[idiomaAtual][mensagemKey] || mensagemKey; // CORREÇÃO: Adicionado fallback
     confirmBtnSim.innerText = dicionarioTextos[idiomaAtual]['confirm-sim'];
     confirmBtnNao.innerText = dicionarioTextos[idiomaAtual]['confirm-nao'];
     modalConfirmacao.classList.add('active');
@@ -195,6 +195,26 @@ function mostrarConfirmacao(mensagemKey, callback) {
     };
 }
 
+// ========================================================================
+// FUNÇÃO AUXILIAR PARA FORMATAR DATAS
+// ========================================================================
+
+function formatarData(dataString) {
+    if (!dataString) return 'N/D';
+    
+    try {
+        const data = new Date(dataString);
+        return data.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (e) {
+        return dataString;
+    }
+}
 
 // ========================================================================
 // INÍCIO DO DOMContentLoaded
@@ -210,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'login.html';
         } else {
             usuarioLogado = data; 
+            console.log('Usuário logado:', usuarioLogado);
+            console.log('Iniciando página admin...');
             iniciarPaginaAdmin(); 
         }
     })
@@ -292,20 +314,28 @@ function iniciarPaginaAdmin() {
 
     // --- Lógica de Carregamento de Dados (Abas) ---
     function carregarDadosAbaAtiva() {
-        console.log(`Carregando aba: ${abaAtiva}`);
+        console.log(`=== CARREGANDO ABA: ${abaAtiva} ===`);
+        
         switch (abaAtiva) {
             case 'recepcao':
+                console.log('Chamando carregarAbaRecepcao()');
                 carregarAbaRecepcao();
                 break;
             case 'clientes':
-                // (Não precisa carregar nada ao entrar na aba, 
-                // a lógica é ativada pelo clique no botão "Buscar")
+                console.log('Chamando carregarAbaClientes()');
+                carregarAbaClientes();
                 break;
             case 'reservas':
+                console.log('Chamando carregarAbaReservas()');
                 carregarAbaReservas();
                 break;
             case 'gestao-quartos':
+                console.log('Chamando carregarAbaGestaoQuartos()');
                 carregarAbaGestaoQuartos();
+                break;
+            case 'gestao-vagas':
+                console.log('Chamando carregarAbaGestaoVagas()');
+                carregarAbaGestaoVagas();
                 break;
         }
     }
@@ -317,355 +347,475 @@ function iniciarPaginaAdmin() {
     ligarEventosGestaoQuartos();
     ligarEventosClientes();
     ligarEventosRecepcao();
+    ligarEventosReservas();
+    ligarEventosGestaoVagas();
 
 } // Fim do iniciarPaginaAdmin()
 
+// ========================================================================
+// ABA 1: RECEPÇÃO (RF01, RF12, RF13) - CORRIGIDA
+// ========================================================================
 
-// ========================================================================
-// ABA 1: RECEPÇÃO (RF01, RF12, RF13)
-// ========================================================================
 function carregarAbaRecepcao() {
-    const checkinsContainer = document.getElementById('checkins-lista');
-    const checkoutsContainer = document.getElementById('checkouts-lista');
+    console.log('Carregando recepção...');
     
-    checkinsContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-carregando']}</p>`;
-    checkoutsContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-carregando']}</p>`;
-
-    // 1. Busca TODAS as reservas ativas (Confirmadas E Check-in)
-    fetch('api/admin/buscar_reservas_recepcao.php', { method: 'GET', credentials: 'include' })
+    // Carrega check-ins pendentes (reservas CONFIRMADAS)
+    fetch('api/admin/recepcao.php?acao=checkins_pendentes', { credentials: 'include' })
         .then(response => response.json())
         .then(data => {
-            checkinsContainer.innerHTML = '';
-            checkoutsContainer.innerHTML = '';
-
-            if (data.status === 'erro') {
-                checkinsContainer.innerHTML = `<p>${data.mensagem}</p>`;
-                return;
-            }
-
-            const checkins = data.filter(r => r.status_reserva === 'CONFIRMADA');
-            const checkouts = data.filter(r => r.status_reserva === 'CHECKIN');
-
-            // 2. Popula Lista de Check-ins (Status = CONFIRMADA)
-            if (checkins.length > 0) {
-                checkins.forEach(reserva => {
-                    const card = criarCardRecepcao(reserva);
-                    checkinsContainer.appendChild(card);
-                });
-            } else {
-                checkinsContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-nenhum-checkin']}</p>`;
-            }
+            const container = document.getElementById('checkins-lista');
+            container.innerHTML = '';
             
-            // 3. Popula Lista de Hóspedes Atuais (Status = CHECKIN)
-            if (checkouts.length > 0) {
-                checkouts.forEach(reserva => {
-                    const card = criarCardRecepcao(reserva);
-                    checkoutsContainer.appendChild(card);
-                    
-                    // 4. (IMPORTANTE) Atualiza o saldo e o botão de checkout
-                    // para cada card de hóspede atual.
-                    atualizarSaldoDevedor(reserva.id);
+            if (data.length > 0) {
+                data.forEach(reserva => {
+                    container.appendChild(criarCardRecepcao(reserva, 'checkin'));
                 });
             } else {
-                checkoutsContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-nenhum-checkout']}</p>`;
+                container.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-nenhum-checkin']}</p>`;
             }
         })
-        .catch(err => {
-            console.error('Erro ao carregar recepção:', err);
-            checkinsContainer.innerHTML = `<p>Erro ao carregar dados da recepção.</p>`;
+        .catch(error => {
+            console.error('Erro ao carregar check-ins:', error);
+            document.getElementById('checkins-lista').innerHTML = '<p>Erro ao carregar check-ins</p>';
+        });
+
+    // Carrega hóspedes atuais (CHECK-IN feito)
+    fetch('api/admin/recepcao.php?acao=hospedes_ativos', { credentials: 'include' })
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('checkouts-lista');
+            container.innerHTML = '';
+            
+            if (data.length > 0) {
+                data.forEach(reserva => {
+                    container.appendChild(criarCardRecepcao(reserva, 'checkout'));
+                });
+            } else {
+                container.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-nenhum-checkout']}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar check-outs:', error);
+            document.getElementById('checkouts-lista').innerHTML = '<p>Erro ao carregar check-outs</p>';
         });
 }
 
-/**
- * (Recepção) Helper: Cria os cards de check-in/out
- */
-function criarCardRecepcao(reserva) {
-    const card = document.createElement('div');
-    card.className = 'reserva-check-card';
-    
-    // Traduz os textos
-    const btnCheckinTexto = dicionarioTextos[idiomaAtual]['recepcao-btn-checkin'];
-    const btnPagamentoTexto = dicionarioTextos[idiomaAtual]['recepcao-btn-pagamento'];
-    const btnConsumoTexto = dicionarioTextos[idiomaAtual]['recepcao-btn-consumo'];
-    const btnCheckoutTexto = dicionarioTextos[idiomaAtual]['recepcao-btn-checkout'];
-    const statusTexto = dicionarioTextos[idiomaAtual][`status-${reserva.status_reserva}`] || reserva.status_reserva;
+// ========================================================================
+// ABA 1: RECEPÇÃO - FUNÇÕES CORRIGIDAS COM BOTÕES
+// ========================================================================
 
-    let actionsHTML = '';
+function criarCardRecepcao(reserva, tipo) {
+    const card = document.createElement('div');
+    card.className = 'list-item-card';
+    card.dataset.reservaId = reserva.id;
     
-    if (reserva.status_reserva === 'CONFIRMADA') {
-        // Ações para quem vai fazer Check-in
-        actionsHTML = `
-            <button class="btn btn-primary btn-fazer-checkin" data-id="${reserva.id}">${btnCheckinTexto}</button>
-            ${reserva.origem === 'BALCAO' ? `<button class="btn btn-secondary btn-registrar-pagamento" data-id="${reserva.id}" data-valor="${reserva.valor_total_diarias}" data-tipo="DIARIA">${btnPagamentoTexto}</button>` : ''}
+    const statusBadge = reserva.status ? `<span class="status-badge status-${reserva.status.toLowerCase()}">${reserva.status}</span>` : '';
+    
+    if (tipo === 'checkin') {
+        // CARDS DE CHECK-IN PENDENTE (Reservas CONFIRMADAS)
+        card.innerHTML = `
+            <div class="info">
+                <strong>${reserva.nome_cliente || 'Cliente não encontrado'}</strong>
+                ${statusBadge}
+                <p>Check-in: ${formatarData(reserva.data_checkin)} | Check-out: ${formatarData(reserva.data_checkout)}</p>
+                <p>Quarto: ${reserva.nome_quarto || 'N/D'} | Vagas: ${reserva.vagas_count || '1'}</p>
+                <p>${reserva.email_cliente || ''} | ${reserva.documento_cliente || ''}</p>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary btn-checkin" data-id="${reserva.id}">
+                    ${dicionarioTextos[idiomaAtual]['recepcao-btn-checkin']}
+                </button>
+                <button class="btn btn-cancelar btn-cancelar-reserva" data-id="${reserva.id}">
+                    Cancelar
+                </button>
+            </div>
         `;
-    } else if (reserva.status_reserva === 'CHECKIN') {
-        // Ações para quem vai fazer Check-out
-        actionsHTML = `
-            <button class="btn btn-success btn-lancar-consumo" data-id="${reserva.id}">${btnConsumoTexto}</button>
-            <button class="btn btn-primary btn-fazer-checkout" id="btn-checkout-${reserva.id}" data-id="${reserva.id}" disabled>${btnCheckoutTexto}</button>
+    } else {
+        // CARDS DE HÓSPEDES ATIVOS (CHECK-IN FEITO)
+        card.innerHTML = `
+            <div class="info">
+                <strong>${reserva.nome_cliente || 'Cliente não encontrado'}</strong>
+                ${statusBadge}
+                <p>Check-in: ${formatarData(reserva.data_checkin)} | Check-out: ${formatarData(reserva.data_checkout)}</p>
+                <p>Quarto: ${reserva.nome_quarto || 'N/D'} | Vaga: ${reserva.nome_vaga || 'N/D'}</p>
+                <div class="saldo-info" id="saldo-${reserva.id}">
+                    <em>Carregando saldo...</em>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary btn-pagamento" data-id="${reserva.id}">
+                    ${dicionarioTextos[idiomaAtual]['recepcao-btn-pagamento']}
+                </button>
+                <button class="btn btn-secondary btn-consumo" data-id="${reserva.id}">
+                    ${dicionarioTextos[idiomaAtual]['recepcao-btn-consumo']}
+                </button>
+                <button class="btn btn-primary btn-checkout" data-id="${reserva.id}">
+                    ${dicionarioTextos[idiomaAtual]['recepcao-btn-checkout']}
+                </button>
+            </div>
         `;
+        
+        // Carrega o saldo devedor
+        atualizarSaldoDevedor(reserva.id);
     }
     
-    // Monta o HTML do Card
-    card.innerHTML = `
-        <div class="header">
-            <strong>${reserva.cliente_nome} (Reserva #${reserva.id})</strong>
-            <span class="status status-${reserva.status_reserva.toLowerCase()}">${statusTexto}</span>
-        </div>
-        <div class="body">
-            <p><strong>Check-in:</strong> ${reserva.data_checkin}</p>
-            <p><strong>Check-out:</strong> ${reserva.data_checkout}</p>
-            <p><strong>Vagas:</strong> ${reserva.vagas_count}</p>
-            <p><strong>Valor Diárias:</strong> R$ ${reserva.valor_total_diarias}</p>
-        </div>
-        
-        ${reserva.status_reserva === 'CHECKIN' ? `
-            <div class="consumo-section">
-                <h4>Consumo Extra (RF12/RF13)</h4>
-                <div id="consumo-lista-${reserva.id}" class="painel-lista">
-                    </div>
-                
-                <form class="consumo-form" data-id="${reserva.id}">
-                    <input type="text" class="consumo-descricao" placeholder="${dicionarioTextos[idiomaAtual]['recepcao-consumo-descricao']}" required>
-                    <input type="number" class="consumo-valor" placeholder="R$" step="0.01" min="0.01" required>
-                    <button type="submit" class="btn btn-secondary">${btnConsumoTexto}</button>
-                </form>
-
-                <div id="saldo-info-${reserva.id}" class="saldo-info">...</div>
-            </div>
-        ` : ''}
-        
-        <div class="footer-actions">
-            ${actionsHTML}
-        </div>
-    `;
     return card;
 }
 
-/**
- * (Recepção) Lógica do Saldo Devedor (Ponto de Falha 3)
- */
 function atualizarSaldoDevedor(reservaId) {
-    const saldoInfo = document.getElementById(`saldo-info-${reservaId}`);
-    const btnCheckout = document.getElementById(`btn-checkout-${reservaId}`);
-    
-    if (!saldoInfo) return; 
-    
-    saldoInfo.innerText = dicionarioTextos[idiomaAtual]['recepcao-carregando'];
-    
-    fetch(`api/admin/buscar_saldo_devedor.php?reserva_id=${reservaId}`, { credentials: 'include' })
+    fetch(`api/admin/recepcao.php?acao=saldo_devedor&reserva_id=${reservaId}`, { credentials: 'include' })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'sucesso') {
-                if (data.saldo_devedor > 0) {
-                    saldoInfo.innerHTML = `${dicionarioTextos[idiomaAtual]['recepcao-saldo-devedor']}: R$ ${data.saldo_devedor.toFixed(2)}`;
-                    saldoInfo.className = 'saldo-info devedor';
-                    if (btnCheckout) btnCheckout.disabled = true; // Desabilita
+            const saldoElem = document.getElementById(`saldo-${reservaId}`);
+            if (saldoElem) {
+                if (data.saldo !== undefined) {
+                    if (data.saldo > 0) {
+                        saldoElem.innerHTML = `<strong class="saldo-negativo">${dicionarioTextos[idiomaAtual]['recepcao-saldo-devedor']}: R$ ${data.saldo.toFixed(2)}</strong>`;
+                    } else {
+                        saldoElem.innerHTML = `<span class="saldo-positivo">${dicionarioTextos[idiomaAtual]['recepcao-consumo-quitado']}</span>`;
+                    }
                 } else {
-                    saldoInfo.innerHTML = `${dicionarioTextos[idiomaAtual]['recepcao-consumo-quitado']} (R$ ${data.total_consumido.toFixed(2)})`;
-                    saldoInfo.className = 'saldo-info quitado';
-                    if (btnCheckout) btnCheckout.disabled = false; // Habilita
+                    saldoElem.innerHTML = `<em>${dicionarioTextos[idiomaAtual]['recepcao-erro-saldo']}</em>`;
                 }
-            } else {
-                saldoInfo.innerHTML = dicionarioTextos[idiomaAtual]['recepcao-erro-saldo'];
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar saldo:', error);
+            const saldoElem = document.getElementById(`saldo-${reservaId}`);
+            if (saldoElem) {
+                saldoElem.innerHTML = `<em>${dicionarioTextos[idiomaAtual]['recepcao-erro-saldo']}</em>`;
             }
         });
 }
 
-/**
- * (Recepção) Liga os Event Listeners (Submit e Click)
- */
 function ligarEventosRecepcao() {
-    const mainContent = document.querySelector('.painel-main-content');
-
-    // --- AÇÃO: Lançar Consumo (Submit do form) ---
-    mainContent.addEventListener('submit', (e) => {
-        if (e.target.classList.contains('consumo-form')) {
-            e.preventDefault(); 
-            
+    // Eventos de delegação para os botões dinâmicos
+    document.getElementById('checkins-lista').addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-checkin')) {
             const reservaId = e.target.getAttribute('data-id');
-            const descricaoInput = e.target.querySelector('.consumo-descricao');
-            const valorInput = e.target.querySelector('.consumo-valor');
-
-            const descricao = descricaoInput.value;
-            const valor = valorInput.value;
-
-            if (!descricao || !valor) {
-                mostrarAlerta('Descrição e valor são obrigatórios.', 'erro');
-                return;
-            }
-
-            fetch('api/admin/adicionar_consumo.php', {
-                method: 'POST', credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reserva_id: reservaId, descricao: descricao, valor: valor })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'sucesso') {
-                    mostrarAlerta(dicionarioTextos[idiomaAtual]['recepcao-consumo-sucesso'], 'sucesso');
-                    e.target.reset(); // Limpa o formulário
-                    atualizarSaldoDevedor(reservaId); // Atualiza o saldo
-                } else {
-                    mostrarAlerta(data.mensagem, 'erro');
-                }
-            });
+            fazerCheckin(reservaId);
+        }
+        if (e.target.classList.contains('btn-cancelar-reserva')) {
+            const reservaId = e.target.getAttribute('data-id');
+            cancelarReserva(reservaId);
         }
     });
-
-    // --- AÇÃO: Check-in, Check-out, Registrar Pagamento (Click) ---
-    mainContent.addEventListener('click', (e) => {
-        
-        // --- FAZER CHECK-IN ---
-        if (e.target.classList.contains('btn-fazer-checkin')) {
+    
+    document.getElementById('checkouts-lista').addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-checkout')) {
             const reservaId = e.target.getAttribute('data-id');
-            mostrarConfirmacao(dicionarioTextos[idiomaAtual]['recepcao-checkin-confirm'], () => {
-                fetch('api/admin/fazer_checkin.php', {
-                    method: 'POST', credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reserva_id: reservaId })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'sucesso') {
-                        mostrarAlerta(dicionarioTextos[idiomaAtual]['recepcao-checkin-sucesso'], 'sucesso');
-                        carregarAbaRecepcao(); // Recarrega a aba
-                    } else {
-                        mostrarAlerta(data.mensagem, 'erro');
-                    }
-                });
-            });
+            fazerCheckout(reservaId);
         }
-
-        // --- FAZER CHECK-OUT ---
-        if (e.target.classList.contains('btn-fazer-checkout')) {
+        if (e.target.classList.contains('btn-pagamento')) {
             const reservaId = e.target.getAttribute('data-id');
-            mostrarConfirmacao(dicionarioTextos[idiomaAtual]['recepcao-checkout-confirm'], () => {
-                fetch('api/admin/fazer_checkout.php', {
-                    method: 'POST', credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reserva_id: reservaId })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'sucesso') {
-                        mostrarAlerta(dicionarioTextos[idiomaAtual]['recepcao-checkout-sucesso'], 'sucesso');
-                        carregarAbaRecepcao(); // Recarrega a aba
-                    } else {
-                        mostrarAlerta(data.mensagem, 'erro');
-                    }
-                });
-            });
+            abrirModalPagamento(reservaId);
         }
-
-        // --- REGISTRAR PAGAMENTO (Balcão) ---
-        if (e.target.classList.contains('btn-registrar-pagamento')) {
+        if (e.target.classList.contains('btn-consumo')) {
             const reservaId = e.target.getAttribute('data-id');
-            const valor = e.target.getAttribute('data-valor');
-            const tipo = e.target.getAttribute('data-tipo'); // 'DIARIA' ou 'EXTRA'
-            
-            // (Para a apresentação, vamos usar um 'prompt' simples
-            // em vez de um modal complexo de pagamento)
-            const metodo = prompt(dicionarioTextos[idiomaAtual]['recepcao-pagamento-metodo'], 'DINHEIRO'); 
-            
-            if (metodo === 'DINHEIRO' || metodo === 'CARTAO_MAQUININHA') {
-                fetch('api/admin/registrar_pagamento.php', {
-                    method: 'POST', credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reserva_id: reservaId, valor: valor, tipo: tipo, metodo: metodo })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'sucesso') {
-                        mostrarAlerta(dicionarioTextos[idiomaAtual]['recepcao-pagamento-sucesso'], 'sucesso');
-                        carregarAbaRecepcao(); // Recarrega a aba
-                    } else {
-                        mostrarAlerta(data.mensagem, 'erro');
-                    }
-                });
-            }
+            abrirModalConsumo(reservaId);
         }
     });
 }
 
 
-/**
- * ABA 2: CLIENTES (RF08, RF01)
- */
-let clienteSelecionadoId = null; // Guarda o ID do cliente
+function fazerCheckin(reservaId) {
+    mostrarConfirmacao('recepcao-checkin-confirm', () => {
+        // CORREÇÃO: Enviar como FormData ou URL encoded em vez de JSON
+        const formData = new FormData();
+        formData.append('acao', 'fazer_checkin');
+        formData.append('reserva_id', reservaId);
+        
+        fetch('api/admin/recepcao.php', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'sucesso') {
+                mostrarAlerta('recepcao-checkin-sucesso', 'sucesso');
+                carregarAbaRecepcao(); // Recarrega a lista
+            } else {
+                mostrarAlerta(data.mensagem, 'erro');
+            }
+        })
+        .catch(error => {
+            console.error('Erro no check-in:', error);
+            mostrarAlerta('Erro ao fazer check-in', 'erro');
+        });
+    });
+}
+
+function fazerCheckout(reservaId) {
+    mostrarConfirmacao('recepcao-checkout-confirm', () => {
+        // CORREÇÃO: Enviar como FormData
+        const formData = new FormData();
+        formData.append('acao', 'fazer_checkout');
+        formData.append('reserva_id', reservaId);
+        
+        fetch('api/admin/recepcao.php', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'sucesso') {
+                mostrarAlerta('recepcao-checkout-sucesso', 'sucesso');
+                carregarAbaRecepcao(); // Recarrega a lista
+            } else {
+                mostrarAlerta(data.mensagem, 'erro');
+            }
+        })
+        .catch(error => {
+            console.error('Erro no check-out:', error);
+            mostrarAlerta('Erro ao fazer check-out', 'erro');
+        });
+    });
+}
+
+function cancelarReserva(reservaId) {
+    mostrarConfirmacao('Tem certeza que deseja cancelar esta reserva?', () => {
+        fetch('api/admin/cancelar_reserva_admin.php', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                reserva_id: reservaId 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'sucesso') {
+                mostrarAlerta('Reserva cancelada com sucesso!', 'sucesso');
+                carregarAbaRecepcao(); // Recarrega a lista
+            } else {
+                mostrarAlerta(data.mensagem, 'erro');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao cancelar reserva:', error);
+            mostrarAlerta('Erro ao cancelar reserva', 'erro');
+        });
+    });
+}
+
+
+
+
+function abrirModalPagamento(reservaId) {
+    mostrarAlerta('Funcionalidade em desenvolvimento', 'aviso');
+}
+
+function abrirModalConsumo(reservaId) {
+    mostrarAlerta('Funcionalidade em desenvolvimento', 'aviso');
+}
+
+// ========================================================================
+// ABA 2: CLIENTES (RF08, RF01) - CORRIGIDA
+// ========================================================================
+
+let clienteSelecionadoId = null; 
 
 function carregarAbaClientes() {
-    // Esta função agora está vazia, pois a lógica
-    // só precisa ser ligada uma vez (em ligarEventosClientes)
+    
+    document.getElementById('clientes-lista-busca').innerHTML = 
+        `<p>${dicionarioTextos[idiomaAtual]['clientes-digite-busca']}</p>`;
 }
 
 function ligarEventosClientes() {
-    const btnBuscar = document.getElementById('btn-buscar-cliente');
-    const termoBusca = document.getElementById('cliente-busca-termo');
-    const listaContainer = document.getElementById('clientes-lista-busca');
-    const formNovaReserva = document.getElementById('form-nova-reserva-balcao');
+    document.getElementById('btn-buscar-cliente').addEventListener('click', buscarClientes);
     
-    // Lógica do botão "Buscar"
-    btnBuscar.addEventListener('click', () => {
-        const termo = termoBusca.value;
-        if (termo.length < 3) {
-            mostrarAlerta(dicionarioTextos[idiomaAtual]['clientes-digite-busca'], 'erro');
+    // Buscar ao pressionar Enter
+    document.getElementById('cliente-busca-termo').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            buscarClientes();
+        }
+    });
+}
+
+function buscarClientes() {
+    const termo = document.getElementById('cliente-busca-termo').value.trim();
+    const listaContainer = document.getElementById('clientes-lista-busca');
+    
+    if (termo.length < 3) {
+        listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['clientes-digite-busca']}</p>`;
+        return;
+    }
+    
+    listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-carregando']}</p>`;
+    
+    fetch(`api/admin/cliente_crud.php?acao=buscar&termo=${encodeURIComponent(termo)}`, { 
+        credentials: 'include' 
+    })
+    .then(response => response.json())
+    .then(data => {
+        listaContainer.innerHTML = '';
+        
+        if (data.length > 0) {
+            data.forEach(cliente => {
+                const card = document.createElement('div');
+                card.className = 'list-item-card';
+                card.innerHTML = `
+                    <div class="info">
+                        <strong>${cliente.nome_completo}</strong>
+                        <p>Email: ${cliente.email} | Documento: ${cliente.documento || 'N/D'}</p>
+                        <p>Telefone: ${cliente.telefone || 'N/D'} | Nacionalidade: ${cliente.nacionalidade || 'N/D'}</p>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-primary btn-selecionar-cliente" data-id="${cliente.id}">
+                            ${dicionarioTextos[idiomaAtual]['clientes-btn-selecionar']}
+                        </button>
+                    </div>
+                `;
+                listaContainer.appendChild(card);
+            });
+            
+            // Liga eventos dos botões selecionar
+            document.querySelectorAll('.btn-selecionar-cliente').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const clienteId = e.target.getAttribute('data-id');
+                    selecionarClienteParaReserva(clienteId);
+                });
+            });
+        } else {
+            listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['clientes-nenhum-encontrado']}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao buscar clientes:', error);
+        listaContainer.innerHTML = '<p>Erro ao buscar clientes</p>';
+    });
+}
+
+function selecionarClienteParaReserva(clienteId) {
+    console.log('Selecionando cliente ID:', clienteId);
+    
+    // Pequeno delay para garantir que o DOM está pronto
+    setTimeout(() => {
+        // Verifica se os elementos existem antes de usar
+        const nomeElement = document.getElementById('cliente-selecionado-nome');
+        const formElement = document.getElementById('form-nova-reserva-balcao');
+        
+        console.log('Elementos encontrados:');
+        console.log('- cliente-selecionado-nome:', nomeElement);
+        console.log('- form-nova-reserva-balcao:', formElement);
+        
+        if (!nomeElement || !formElement) {
+            console.error('Elementos do formulário não encontrados');
+            mostrarAlerta('Erro: Elementos do formulário não encontrados', 'erro');
             return;
         }
         
-        listaContainer.innerHTML = "<p>Buscando...</p>";
+        // Busca dados completos do cliente
+        const url = `api/admin/cliente_crud.php?acao=detalhes&id=${clienteId}`;
+        console.log('URL detalhes cliente:', url);
         
-        fetch(`api/admin/buscar_clientes.php?tipo=termo&valor=${termo}`, { credentials: 'include' })
-            .then(response => response.json())
-            .then(data => {
-                listaContainer.innerHTML = '';
-                if (data.length > 0) {
-                    data.forEach(cliente => {
-                        const card = document.createElement('div');
-                        card.className = 'cliente-card';
-                        card.innerHTML = `
-                            <div class="info">
-                                <strong>${cliente.nome_completo}</strong>
-                                <p>Email: ${cliente.email} | Doc: ${cliente.documento_numero}</p>
-                            </div>
-                            <button class="btn btn-success btn-selecionar-cliente" data-id="${cliente.id}" data-nome="${cliente.nome_completo}">${dicionarioTextos[idiomaAtual]['clientes-btn-selecionar']}</button>
-                        `;
-                        listaContainer.appendChild(card);
-                    });
-                } else {
-                    listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['clientes-nenhum-encontrado']}</p>`;
-                }
-            });
-    });
-    
-    // Lógica do botão "Selecionar" (usando delegação)
-    listaContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-selecionar-cliente')) {
-            clienteSelecionadoId = e.target.getAttribute('data-id');
-            const nomeCliente = e.target.getAttribute('data-nome');
+        fetch(url, { 
+            credentials: 'include' 
+        })
+        .then(response => {
+            console.log('Status resposta detalhes:', response.status);
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(cliente => {
+            console.log('Dados do cliente recebidos:', cliente);
             
-            document.getElementById('cliente-selecionado-nome').innerText = nomeCliente;
-            formNovaReserva.classList.remove('hidden');
-        }
-    });
-    
-    // (Ainda falta implementar a lógica de "Verificar Vagas"
-    // e "Confirmar Reserva" para o balcão)
+            if (cliente && cliente.id) {
+                clienteSelecionadoId = clienteId;
+                nomeElement.textContent = cliente.nome_completo;
+                formElement.classList.remove('hidden');
+                
+                // Scroll para o formulário
+                formElement.scrollIntoView({ behavior: 'smooth' });
+                
+                console.log('Cliente selecionado com sucesso:', cliente.nome_completo);
+            } else {
+                throw new Error('Dados do cliente incompletos');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Erro ao carregar detalhes do cliente:', error);
+            mostrarAlerta('Erro ao carregar dados do cliente: ' + error.message, 'erro');
+        });
+    }, 100); // Pequeno delay de 100ms
 }
+// ========================================================================
+// ABA 3: RESERVAS - CORRIGIDA
+// ========================================================================
 
-
-/**
- * ABA 3: RESERVAS
- */
 function carregarAbaReservas() {
-    // (Esta API 'buscar_todas_reservas.php' ainda não foi criada)
-    document.getElementById('todas-reservas-lista').innerHTML = `<p>${dicionarioTextos[idiomaAtual]['reservas-nenhuma-encontrada']}</p>`;
+    // Carrega reservas automaticamente ao entrar na aba
+    buscarReservas();
 }
 
+function ligarEventosReservas() {
+    document.getElementById('btn-buscar-reservas').addEventListener('click', buscarReservas);
+}
 
-/**
- * ABA 4: GESTÃO DE QUARTOS (RF03)
- */
+function buscarReservas() {
+    const status = document.getElementById('reserva-busca-status').value;
+    const cliente = document.getElementById('reserva-busca-cliente').value.trim();
+    const checkinMin = document.getElementById('reserva-busca-checkin').value;
+    const checkoutMax = document.getElementById('reserva-busca-checkout').value;
+    
+    let url = `api/admin/reserva_crud.php?acao=listar`;
+    const params = [];
+    
+    if (status) params.push(`status=${status}`);
+    if (cliente) params.push(`cliente=${encodeURIComponent(cliente)}`);
+    if (checkinMin) params.push(`checkin_min=${checkinMin}`);
+    if (checkoutMax) params.push(`checkout_max=${checkoutMax}`);
+    
+    if (params.length > 0) {
+        url += '&' + params.join('&');
+    }
+    
+    const listaContainer = document.getElementById('todas-reservas-lista');
+    listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-carregando']}</p>`;
+    
+    fetch(url, { credentials: 'include' })
+    .then(response => response.json())
+    .then(data => {
+        listaContainer.innerHTML = '';
+        
+        if (data.length > 0) {
+            data.forEach(reserva => {
+                const card = document.createElement('div');
+                card.className = 'list-item-card';
+                
+                const statusClass = `status-${reserva.status.toLowerCase()}`;
+                const checkin = formatarData(reserva.data_checkin);
+                const checkout = formatarData(reserva.data_checkout);
+                
+                card.innerHTML = `
+                    <div class="info">
+                        <strong>${reserva.nome_cliente || 'Cliente não encontrado'}</strong>
+                        <span class="status-badge ${statusClass}">${reserva.status}</span>
+                        <p>Check-in: ${checkin} | Check-out: ${checkout}</p>
+                        <p>Quarto: ${reserva.nome_quarto || 'N/D'} | Vaga: ${reserva.nome_vaga || 'N/D'}</p>
+                        <p>Valor: R$ ${reserva.valor_total || '0.00'} | Criação: ${formatarData(reserva.data_criacao)}</p>
+                    </div>
+                `;
+                listaContainer.appendChild(card);
+            });
+        } else {
+            listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['reservas-nenhuma-encontrada']}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao buscar reservas:', error);
+        listaContainer.innerHTML = '<p>Erro ao carregar reservas</p>';
+    });
+}
+
+// ========================================================================
+// ABA 4: GESTÃO DE QUARTOS (RF03)
+// ========================================================================
+
 const modalQuarto = document.getElementById('modal-quarto-form');
 const formQuarto = document.getElementById('form-quarto');
 const quartoFormTitulo = document.getElementById('quarto-form-titulo');
@@ -684,10 +834,15 @@ function carregarAbaGestaoQuartos() {
                 data.forEach(quarto => {
                     const card = document.createElement('div');
                     card.className = 'list-item-card'; 
+                    // Sua nova lógica de datas
+                    const dataEntrada = quarto.data_entrada ? new Date(quarto.data_entrada).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Hoje';
+                    const dataSaida = quarto.data_saida ? new Date(quarto.data_saida).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Indefinido';
                     card.innerHTML = `
                         <div class="info">
-                            <strong>${quarto.nome} (${quarto.tipo})</strong>
+                            <strong>${quarto.nome} (${quarto.tipo || 'N/D'})</strong>
                             <p>Capacidade: ${quarto.capacidade} camas | Preço: R$ ${quarto.preco_diaria}</p>
+                            <p>Banheiro: ${quarto.tem_banheiro ? 'Sim' : 'Não'} | Tipo: ${quarto.tipo || 'N/D'}</p>
+                            <p>Disponível de ${dataEntrada} até ${dataSaida}</p>
                         </div>
                         <div class="actions">
                             <button class="btn btn-secondary btn-editar-quarto" data-id="${quarto.id}">Editar</button>
@@ -710,8 +865,35 @@ function ligarEventosGestaoQuartos() {
         quartoIdEmEdicao = null; 
         quartoFormTitulo.innerText = dicionarioTextos[idiomaAtual]['quartos-modal-titulo-novo'];
         formQuarto.reset(); 
+        
+        // Limpa mensagens de erro
+        quartoFormMessage.style.display = 'none';
         quartoFormMessage.classList.add('hidden');
+        quartoFormMessage.innerText = '';
+        
+        // Define a data de entrada padrão como hoje (após o reset)
+        setTimeout(() => {
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('quarto-data-entrada').value = hoje;
+            document.getElementById('quarto-saida-indefinida').checked = true;
+            document.getElementById('quarto-data-saida').disabled = true;
+            document.getElementById('quarto-data-saida').value = '';
+            document.getElementById('quarto-tem-banheiro').checked = false; // Garante que o checkbox de banheiro esteja desmarcado
+            document.getElementById('quarto-tipo').value = 'MISTO'; // Define um padrão
+        }, 10);
+        
         modalQuarto.classList.add('active');
+    });
+    
+    // Evento para checkbox de saída indefinida
+    document.getElementById('quarto-saida-indefinida').addEventListener('change', (e) => {
+        const dataSaidaInput = document.getElementById('quarto-data-saida');
+        if (e.target.checked) {
+            dataSaidaInput.disabled = true;
+            dataSaidaInput.value = '';
+        } else {
+            dataSaidaInput.disabled = false;
+        }
     });
     
     document.getElementById('btn-fechar-quarto-modal').addEventListener('click', () => {
@@ -722,15 +904,63 @@ function ligarEventosGestaoQuartos() {
     formQuarto.addEventListener('submit', (e) => {
         e.preventDefault();
         
+        // Limpa mensagens de erro anteriores
+        quartoFormMessage.style.display = 'none';
+        quartoFormMessage.classList.add('hidden');
+        
+        // Validação básica (sua lógica estava ótima)
+        const nome = document.getElementById('quarto-nome').value.trim();
+        const capacidade = parseInt(document.getElementById('quarto-capacidade').value);
+        const preco = parseFloat(document.getElementById('quarto-preco-diaria').value);
+        const tipo = document.getElementById('quarto-tipo').value; // <-- Campo que faltava
+        
+        if (!nome) {
+            quartoFormMessage.innerText = 'O nome do quarto é obrigatório.';
+            quartoFormMessage.style.display = 'block';
+            quartoFormMessage.classList.remove('hidden');
+            return;
+        }
+         if (!tipo) { // <-- Validação do tipo
+            quartoFormMessage.innerText = 'O tipo do quarto (Misto, Feminino, etc.) é obrigatório.';
+            quartoFormMessage.style.display = 'block';
+            quartoFormMessage.classList.remove('hidden');
+            return;
+        }
+        if (!capacidade || capacidade < 1) {
+            quartoFormMessage.innerText = 'A capacidade deve ser maior que zero.';
+            quartoFormMessage.style.display = 'block';
+            quartoFormMessage.classList.remove('hidden');
+            return;
+        }
+        if (!preco || preco <= 0) {
+            quartoFormMessage.innerText = 'O preço deve ser maior que zero.';
+            quartoFormMessage.style.display = 'block';
+            quartoFormMessage.classList.remove('hidden');
+            return;
+        }
+        
+        const saidaIndefinida = document.getElementById('quarto-saida-indefinida').checked;
+        
+        // ================== CORREÇÃO ==================
+        // Objeto de dados alinhado com o HTML e o PHP que corrigimos
         const dadosQuarto = {
-            nome: document.getElementById('quarto-numero').value,
-            tipo: document.getElementById('quarto-tipo').value,
-            capacidade: document.getElementById('quarto-capacidade').value,
-            preco_diaria: document.getElementById('quarto-preco-diaria').value,
-            // (Faltam campos no HTML para descrição PT/EN)
-            descricao_pt: `(Descrição PT pendente)`, 
-            descricao_en: `(Description EN pending)`
+            nome: nome,
+            capacidade: capacidade,
+            preco_diaria: preco,
+            descricao_pt: document.getElementById('quarto-desc-pt').value.trim() || '',
+            descricao_en: document.getElementById('quarto-desc-en').value.trim() || '',
+            
+            // Campos que sincronizamos
+            tipo: tipo, 
+            tem_banheiro: document.getElementById('quarto-tem-banheiro').checked, // (true ou false)
+
+            // Seus novos campos de data
+            data_entrada: document.getElementById('quarto-data-entrada').value || new Date().toISOString().split('T')[0],
+            data_saida: saidaIndefinida ? null : (document.getElementById('quarto-data-saida').value || null),
         };
+        // ================== FIM DA CORREÇÃO ==================
+        
+        console.log('Enviando dados do quarto:', dadosQuarto);
         
         let url = 'api/admin/quarto_crud.php';
         let body;
@@ -746,19 +976,36 @@ function ligarEventosGestaoQuartos() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         })
-        .then(response => response.json())
+        .then(async response => {
+            // Sua lógica de parse de erro está ótima
+            const text = await response.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error('Resposta não é JSON válido:', text);
+                console.error('Erro de parse:', e);
+                throw new Error('A API retornou uma resposta inválida. Verifique o console do navegador (F12) para mais detalhes. Possível causa: erro PHP ou colunas faltando no banco de dados.');
+            }
+            return data;
+        })
         .then(data => {
+            console.log('Resposta da API:', data);
             if (data.status === 'sucesso') {
                 mostrarAlerta(dicionarioTextos[idiomaAtual]['quarto-salvo-sucesso'], 'sucesso');
                 modalQuarto.classList.remove('active');
+                formQuarto.reset();
                 carregarAbaGestaoQuartos(); 
             } else {
-                quartoFormMessage.innerText = data.mensagem;
+                quartoFormMessage.innerText = data.mensagem || 'Erro ao salvar quarto.';
+                quartoFormMessage.style.display = 'block';
                 quartoFormMessage.classList.remove('hidden');
             }
         })
         .catch(err => {
-            quartoFormMessage.innerText = 'Erro de conexão com a API.';
+            console.error('Erro ao salvar quarto:', err);
+            quartoFormMessage.innerText = 'Erro de conexão com a API: ' + err.message;
+            quartoFormMessage.style.display = 'block';
             quartoFormMessage.classList.remove('hidden');
         });
     });
@@ -793,21 +1040,203 @@ function ligarEventosGestaoQuartos() {
             const quartoId = e.target.getAttribute('data-id');
             quartoIdEmEdicao = quartoId; 
             
-            // (Simulação: Preenche o formulário.)
-            const info = e.target.closest('.list-item-card').querySelector('.info');
-            const nome = info.querySelector('strong').innerText.split(' (')[0];
-            const tipo = info.querySelector('strong').innerText.match(/\((.*?)\)/)[1];
-            const capacidade = info.querySelector('p').innerText.match(/Capacidade: (\d+)/)[1];
-            const preco = info.querySelector('p').innerText.match(/Preço: R\$ ([\d\.]+)/)[1];
-
-            document.getElementById('quarto-numero').value = nome;
-            document.getElementById('quarto-tipo').value = tipo;
-            document.getElementById('quarto-capacidade').value = capacidade;
-            document.getElementById('quarto-preco-diaria').value = preco;
+            // Busca os dados completos do quarto
+            fetch(`api/admin/quarto_crud.php?acao=listar`, { credentials: 'include' })
+                .then(response => response.json())
+                .then(quartos => {
+                    const quarto = quartos.find(q => q.id == quartoId);
+                    if (quarto) {
+                        // ================== CORREÇÃO ==================
+                        // Preenche todos os campos sincronizados
+                        document.getElementById('quarto-nome').value = quarto.nome || '';
+                        document.getElementById('quarto-tipo').value = quarto.tipo || 'MISTO'; // Preenche o tipo
+                        document.getElementById('quarto-capacidade').value = quarto.capacidade || '';
+                        document.getElementById('quarto-preco-diaria').value = quarto.preco_diaria || '';
+                        document.getElementById('quarto-desc-pt').value = quarto.descricao_pt || '';
+                        document.getElementById('quarto-desc-en').value = quarto.descricao_en || '';
+                        document.getElementById('quarto-tem-banheiro').checked = !!quarto.tem_banheiro; // Preenche o checkbox
+                        
+                        // Sua lógica de datas (está ótima)
+                        if (quarto.data_entrada) {
+                            const dataEntradaFormatada = quarto.data_entrada.split(' ')[0];
+                            document.getElementById('quarto-data-entrada').value = dataEntradaFormatada;
+                        } else {
+                            document.getElementById('quarto-data-entrada').value = new Date().toISOString().split('T')[0];
+                        }
+                        if (quarto.data_saida) {
+                            const dataSaidaFormatada = quarto.data_saida.split(' ')[0];
+                            document.getElementById('quarto-data-saida').value = dataSaidaFormatada;
+                            document.getElementById('quarto-saida-indefinida').checked = false;
+                            document.getElementById('quarto-data-saida').disabled = false;
+                        } else {
+                            document.getElementById('quarto-data-saida').value = '';
+                            document.getElementById('quarto-saida-indefinida').checked = true;
+                            document.getElementById('quarto-data-saida').disabled = true;
+                        }
+                        // ================== FIM DA CORREÇÃO ==================
+                    }
+                });
             
             quartoFormTitulo.innerText = `${dicionarioTextos[idiomaAtual]['quartos-modal-titulo-editar']} #${quartoId}`;
             quartoFormMessage.classList.add('hidden');
             modalQuarto.classList.add('active');
+        }
+    });
+}
+
+// ========================================================================
+// ABA 5: GESTÃO DE VAGAS (RF03)
+// ========================================================================
+
+let quartoIdSelecionadoParaVagas = null; // Guarda o ID do quarto em foco
+
+/**
+ * (Vagas) Carrega a aba, populando o dropdown de quartos.
+ */
+function carregarAbaGestaoVagas() {
+    const selectQuarto = document.getElementById('vaga-select-quarto');
+    const detalheContainer = document.getElementById('vagas-detalhe-container');
+
+    // Reseta a aba
+    selectQuarto.innerHTML = '<option value="">Carregando quartos...</option>';
+    detalheContainer.classList.add('hidden');
+    
+    // Busca os quartos (da mesma forma que a aba de Gestão de Quartos)
+    fetch('api/admin/quarto_crud.php?acao=listar', { credentials: 'include' })
+        .then(response => response.json())
+        .then(quartos => {
+            selectQuarto.innerHTML = '<option value="">-- Selecione um Quarto --</option>';
+            if (quartos.length > 0) {
+                quartos.forEach(quarto => {
+                    const option = document.createElement('option');
+                    option.value = quarto.id;
+                    option.text = `${quarto.nome} (Cap: ${quarto.capacidade})`;
+                    option.dataset.nome = quarto.nome; // Guarda o nome
+                    selectQuarto.appendChild(option);
+                });
+            } else {
+                selectQuarto.innerHTML = '<option value="">Nenhum quarto cadastrado</option>';
+            }
+        });
+}
+
+/**
+ * (Vagas) Carrega a lista de vagas e o formulário para um quarto específico.
+ */
+function carregarDetalhesVagas(quartoId, quartoNome) {
+    quartoIdSelecionadoParaVagas = quartoId; // Salva o ID do quarto
+    
+    const detalheContainer = document.getElementById('vagas-detalhe-container');
+    const listaContainer = document.getElementById('vagas-lista');
+    
+    // Atualiza os títulos e IDs
+    document.getElementById('vaga-quarto-selecionado-nome').innerText = `Vagas no Quarto: ${quartoNome}`;
+    document.getElementById('vaga-fk-quarto-id').value = quartoId; // Seta o ID no form hidden
+    detalheContainer.classList.remove('hidden');
+    
+    listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['recepcao-carregando']}</p>`;
+    
+    // Busca as vagas deste quarto
+    fetch(`api/admin/vaga_crud.php?acao=listar_por_quarto&quarto_id=${quartoId}`, { credentials: 'include' })
+        .then(response => response.json())
+        .then(vagas => {
+            listaContainer.innerHTML = ''; // Limpa o "carregando"
+            
+            if (vagas.length > 0) {
+                vagas.forEach(vaga => {
+                    const card = document.createElement('div');
+                    card.className = 'list-item-card';
+                    card.innerHTML = `
+                        <div class="info">
+                            <strong>${vaga.nome_identificador}</strong>
+                            <p>${vaga.descricao_peculiaridades_pt || 'Sem descrição.'}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-cancelar btn-excluir-vaga" data-id="${vaga.id}">Excluir</button>
+                        </div>
+                    `;
+                    listaContainer.appendChild(card);
+                });
+            } else {
+                listaContainer.innerHTML = `<p>Nenhuma vaga (cama) cadastrada neste quarto ainda.</p>`;
+            }
+        });
+}
+
+/**
+ * (Vagas) Liga os eventos da aba (dropdown, form submit, delete)
+ */
+function ligarEventosGestaoVagas() {
+    
+    // Evento 1: Mudança no Dropdown de Quarto
+    document.getElementById('vaga-select-quarto').addEventListener('change', (e) => {
+        const select = e.target;
+        const quartoId = select.value;
+        
+        if (quartoId) {
+            const quartoNome = select.options[select.selectedIndex].dataset.nome;
+            carregarDetalhesVagas(quartoId, quartoNome);
+        } else {
+            // Esconde o container se "Selecione..." for escolhido
+            document.getElementById('vagas-detalhe-container').classList.add('hidden');
+            quartoIdSelecionadoParaVagas = null;
+        }
+    });
+    
+    // Evento 2: Submit do Formulário de Nova Vaga
+    document.getElementById('form-nova-vaga').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const dadosVaga = {
+            fk_quarto_id: document.getElementById('vaga-fk-quarto-id').value,
+            nome_identificador: document.getElementById('vaga-nome-identificador').value,
+            descricao_pt: document.getElementById('vaga-descricao-pt').value,
+            descricao_en: document.getElementById('vaga-descricao-en').value
+        };
+
+        fetch('api/admin/vaga_crud.php', {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ acao: 'criar', dados: dadosVaga })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'sucesso') {
+                mostrarAlerta('Vaga (cama) adicionada com sucesso!', 'sucesso');
+                // Limpa o formulário de nova vaga, mas mantém a seleção do quarto
+                document.getElementById('vaga-nome-identificador').value = '';
+                document.getElementById('vaga-descricao-pt').value = '';
+                document.getElementById('vaga-descricao-en').value = '';
+
+                // Recarrega apenas a lista de vagas
+                carregarDetalhesVagas(quartoIdSelecionadoParaVagas, document.getElementById('vaga-quarto-selecionado-nome').innerText.replace('Vagas no Quarto: ', ''));
+            } else {
+                mostrarAlerta(data.mensagem, 'erro'); // Ex: "Vaga duplicada"
+            }
+        });
+    });
+    
+    // Evento 3: Clique no botão Excluir Vaga (Delegação de Evento)
+    document.getElementById('vagas-lista').addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-excluir-vaga')) {
+            const vagaId = e.target.getAttribute('data-id');
+            
+            mostrarConfirmacao('Tem certeza que quer excluir esta vaga (cama)?', () => {
+                fetch('api/admin/vaga_crud.php', {
+                    method: 'POST', credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao: 'excluir', id: vagaId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'sucesso') {
+                        mostrarAlerta('Vaga excluída!', 'sucesso');
+                        carregarDetalhesVagas(quartoIdSelecionadoParaVagas, document.getElementById('vaga-quarto-selecionado-nome').innerText.replace('Vagas no Quarto: ', ''));
+                    } else {
+                        mostrarAlerta(data.mensagem, 'erro'); // Ex: "Tem reserva ativa"
+                    }
+                });
+            });
         }
     });
 }

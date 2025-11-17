@@ -1,86 +1,58 @@
 <?php
-/*
-    Endpoint pro Atendente registrar um pagamento no balcão (seja da diária ou de extras)
-    Método: POST
-    Recebe: JSON { "reserva_id": X, "valor": XX.XX, "tipo": "DIARIA|EXTRA", "metodo": "DINHEIRO|CARTAO_MAQUININHA" }
-    Retorna: JSON { "status": "sucesso" } ou { "status": "erro", ... }
-*/
-
-// 1. Inclui o arquivo de configuração
 require_once '../config.php';
 
-// 2. Verifica se o usuário está logado (como Atendente ou Admin)
 if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] != 'ATENDENTE' && $_SESSION['usuario_tipo'] != 'ADMIN_MASTER')) {
-    http_response_code(401); // Unauthorized
-    echo json_encode([
-        'status' => 'erro',
-        'mensagem' => 'Acesso negado. Você precisa ser um Atendente ou Admin.'
-    ]);
+    http_response_code(401);
+    echo json_encode(['status' => 'erro', 'mensagem' => 'Acesso negado.']);
     exit();
 }
 
-// 3. Pega os dados do JSON ($dadosRecebidos)
-$reserva_id = $dadosRecebidos['reserva_id'];
-$valor = $dadosRecebidos['valor'];
-$tipo = $dadosRecebidos['tipo'];     // 'DIARIA' ou 'EXTRA'
-$metodo = $dadosRecebidos['metodo']; // 'DINHEIRO' ou 'CARTAO_MAQUININHA'
 
-// 4. Valida os dados
+$json = file_get_contents('php://input');
+$dadosRecebidos = json_decode($json, true);
+
+$reserva_id = $dadosRecebidos['reserva_id'] ?? '';
+$valor = $dadosRecebidos['valor'] ?? '';
+$tipo = $dadosRecebidos['tipo'] ?? '';
+$metodo = $dadosRecebidos['metodo'] ?? '';
+
 if (empty($reserva_id) || empty($valor) || empty($tipo) || empty($metodo)) {
-    http_response_code(400); // Bad Request
-    echo json_encode([
-        'status' => 'erro',
-        'mensagem' => 'Todos os campos (reserva_id, valor, tipo, metodo) são obrigatórios.'
-    ]);
+    http_response_code(400);
+    echo json_encode(['status' => 'erro', 'mensagem' => 'Todos os campos são obrigatórios.']);
     exit();
 }
 
-// 5. Inicia a Transação (Obrigatório)
 $conexao->begin_transaction();
 
 try {
-    // --- Passo 1: Inserir o registro de Pagamento ---
-    $sql_pagamento = "INSERT INTO Pagamentos 
-                        (fk_reserva_id, valor, tipo, metodo, status_pagamento)
-                      VALUES 
-                        ($reserva_id, $valor, '$tipo', '$metodo', 'APROVADO')";
+    // Insere pagamento
+    $sql_pagamento = "INSERT INTO Pagamentos (fk_reserva_id, valor, tipo, metodo, status_pagamento) VALUES (?, ?, ?, ?, 'APROVADO')";
+    $stmt_pagamento = $conexao->prepare($sql_pagamento);
+    $stmt_pagamento->bind_param("idss", $reserva_id, $valor, $tipo, $metodo);
 
-    if (!$conexao->query($sql_pagamento)) {
-        throw new Exception('Erro ao registrar o pagamento: ' . $conexao->error);
+    if (!$stmt_pagamento->execute()) {
+        throw new Exception('Erro ao registrar o pagamento: ' . $stmt_pagamento->error);
     }
+    $stmt_pagamento->close();
 
-    // --- Passo 2: Se for pagamento da DIÁRIA, confirmar a reserva ---
+    // Confirma reserva se for diária
     if ($tipo == 'DIARIA') {
-        // Se o pagamento for da diária, atualiza a reserva de PENDENTE para CONFIRMADA
-        $sql_update_reserva = "UPDATE Reservas 
-                               SET status_reserva = 'CONFIRMADA' 
-                               WHERE id = $reserva_id AND status_reserva = 'PENDENTE'";
-        
-        if (!$conexao->query($sql_update_reserva)) {
-            throw new Exception('Erro ao confirmar a reserva após o pagamento: ' . $conexao->error);
+        $sql_update = "UPDATE Reservas SET status_reserva = 'CONFIRMADA' WHERE id = ? AND status_reserva = 'PENDENTE'";
+        $stmt_update = $conexao->prepare($sql_update);
+        $stmt_update->bind_param("i", $reserva_id);
+       
+        if (!$stmt_update->execute()) {
+            throw new Exception('Erro ao confirmar a reserva: ' . $stmt_update->error);
         }
+        $stmt_update->close();
     }
-    
-    // (Se o tipo for 'EXTRA', não é feito nada na tabela Reservas,
-    // apenas registra o pagamento
 
-    // --- Sucesso: Efetiva a Transação ---
     $conexao->commit();
-
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'sucesso',
-        'mensagem' => 'Pagamento registrado com sucesso.'
-    ]);
+    echo json_encode(['status' => 'sucesso', 'mensagem' => 'Pagamento registrado com sucesso.']);
 
 } catch (Exception $e) {
-    // --- Falha: Reverte a Transação ---
     $conexao->rollback();
-
-    http_response_code(500); // Internal Server Error
-    echo json_encode([
-        'status' => 'erro',
-        'mensagem' => $e->getMessage()
-    ]);
+    http_response_code(500);
+    echo json_encode(['status' => 'erro', 'mensagem' => $e->getMessage()]);
 }
 ?>

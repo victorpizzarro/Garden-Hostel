@@ -71,3 +71,63 @@
     }
 
 /* --- Fim da Estilização do Seletor de Data (input[type="date"]) --- */
+
+
+/* ===================================================
+   CLASSES DE UTILIDADE DO FORMULÁRIO (Separando do HTML)
+   =================================================== */
+
+   .form-field-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .form-field-row label {
+    margin: 0;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .input-auto {
+    width: auto;
+    height: auto;
+    margin: 0;
+  }
+
+
+  /* ===================================================
+   LAYOUT DOS BOTÕES DO MODAL (Salvar/Cancelar)
+   =================================================== */
+
+/* 1. Faz o container dos botões empilhar e centralizar */
+#form-quarto .form-actions {
+    flex-direction: column;  /* Empilha os botões */
+    align-items: center;     /* Centraliza na horizontal */
+    gap: 10px;               /* Espaço entre os botões */
+  }
+  
+  /* 2. Faz o botão principal (Salvar) ocupar uma largura fixa */
+  #form-quarto .form-actions .btn-login-submit {
+    width: 100%;
+    max-width: 350px; /* Limita a largura em telas grandes */
+  }
+  
+  /* 3. Estilo para o botão "Cancelar" (estilo link) */
+  .btn-link-style {
+    background: none;
+    border: none;
+    color: #666; /* Cor de texto secundária */
+    cursor: pointer;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-top: 5px; /* Pequeno espaço extra */
+  }
+  .btn-link-style:hover {
+    color: #333; /* Cor de hover */
+  }

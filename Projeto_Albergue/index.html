@@ -39,7 +39,13 @@
                     </button>
                 </div>
 
-                <a href="login.html" class="btn btn-login" data-key="btn-login">Login / Cadastro</a>
+                <div id="header-user-info" style="display: none; align-items: center; gap: 10px;">
+                    <span id="header-user-name" style="margin-right: 10px;"></span>
+                    <a href="painel_cliente.html" class="btn btn-login" data-key="btn-minha-conta">Minha Conta</a>
+                </div>
+                <div id="header-login-buttons">
+                    <a href="login.html" class="btn btn-login" data-key="btn-login">Login / Cadastro</a>
+                </div>
             </div>
 
         </div>
@@ -79,33 +85,8 @@
             </div>
         </header>
         
-        <div class="card-grid">
-            <article class="acomodacao-card">
-                <img src="imagens/quarto-4-camas.jpg" alt="Dormitório Misto com 4 Camas" class="card-img">
-                <div class="card-content">
-                    <h3 data-key="card1-titulo">Dormitório Misto com 4 Camas</h3>
-                    <p data-key="card1-texto">Quarto com ar-condicionado, cortinas individuais, armário com cadeado e banheiro privativo.</p>
-                    <a href="#form-busca" class="btn btn-card" data-key="btn-confira">Confira!</a>
-                </div>
-            </article>
-
-            <article class="acomodacao-card">
-                <img src="imagens/quarto-8-camas.jpg" alt="Dormitório Misto com 8 Camas" class="card-img">
-                <div class="card-content">
-                    <h3 data-key="card2-titulo">Dormitório Misto com 8 Camas</h3>
-                    <p data-key="card2-texto">Ambiente confortável e climatizado, com camas de casal tipo beliche e armário individual.</p>
-                    <a href="#form-busca" class="btn btn-card" data-key="btn-confira">Confira!</a>
-                </div>
-            </article>
-
-            <article class="acomodacao-card">
-                <img src="imagens/quarto-12-camas.jpg" alt="Dormitório Misto com 12 Camas" class="card-img">
-                <div class="card-content">
-                    <h3 data-key="card3-titulo">Dormitório Misto com 12 Camas</h3>
-                    <p data-key="card3-texto">Espaço amplo e climatizado, ideal para grupos, com tomadas, iluminação e cortinas individuais.</p>
-                    <a href="#form-busca" class="btn btn-card" data-key="btn-confira">Confira!</a>
-                </div>
-            </article>
+        <div class="card-grid" id="quartos-disponiveis-grid">
+            <p data-key="quartos-carregando">Carregando quartos disponíveis...</p>
         </div>
     </section>
 

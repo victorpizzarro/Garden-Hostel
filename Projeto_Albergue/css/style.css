@@ -83,3 +83,109 @@ body.js-traduzido [data-key] {
 body.login-page {
     padding-top: 0;
 }
+
+
+/* ===================================================
+   CLASSES PARA O FORMULÁRIO (Separando do HTML)
+   =================================================== */
+
+/* Substitui o style="... gap: 10px;" */
+.form-field-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Para o label do "Indefinido" e "Banheiro" */
+.form-field-row label {
+  margin: 0;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Para os checkboxes (style="width: auto;") */
+.input-auto {
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+
+/* ===================================================
+   CSS PARA O SCROLL DO MODAL E FORMULÁRIO (COLE ISTO NO SEU STYLE.CSS)
+   =================================================== */
+
+/* Classes para limpar o style="... " do HTML */
+.form-field-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-field-row label {
+  margin: 0;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.input-auto {
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+/* ===================================================
+   SCROLL DO MODAL DE QUARTO (VERSÃO 2.0 - ROBUSTA)
+   =================================================== */
+
+/* 1. O container do modal (que tem a classe .login-form)
+   Limitamos sua altura e o transformamos em um container flex vertical. */
+#modal-form-content.login-form {
+  max-height: 90vh; /* Altura máxima de 90% da tela */
+  height: auto;     /* A altura se ajusta ao conteúdo, até o limite de 90vh */
+  
+  display: flex;
+  flex-direction: column; /* Organiza os filhos (form) verticalmente */
+  
+  /* Garante que o padding não quebre o layout de altura */
+  box-sizing: border-box; 
+}
+
+/* 2. O formulário dentro do modal
+   Ele deve crescer para preencher o modal */
+#form-quarto {
+  display: flex;
+  flex-direction: column; /* Título, Conteúdo, Botões (um em cima do outro) */
+  flex-grow: 1;         /* Faz o formulário ocupar todo o espaço do modal-form-content */
+  
+  /* IMPORTANTE: Impede que o formulário "vaze" do modal */
+  overflow: hidden; 
+}
+
+/* 3. A área de scroll (o 'miolo' do formulário)
+   Esta é a única parte que vai rolar. */
+.form-scroll-content {
+  overflow-y: auto;   /* Scroll vertical automático */
+  overflow-x: hidden; /* Sem scroll horizontal */
+  
+  /* Faz esta área crescer e encolher conforme necessário */
+  flex-grow: 1;
+  flex-shrink: 1;
+  
+  /* Um padding para o conteúdo não colar nas bordas */
+  /* Ajuste o padding-right para dar espaço para a barra de scroll */
+  padding: 10px 15px 10px 5px; 
+}
+
+/* 4. Garante que os botões fiquem fixos embaixo */
+#form-quarto .form-actions {
+  flex-shrink: 0; /* Impede que os botões encolham */
+  margin-top: auto; /* Empurra os botões para o final (se houver espaço) */
+  padding-top: 20px; /* Um respiro acima dos botões */
+}

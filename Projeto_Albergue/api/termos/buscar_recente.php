@@ -1,7 +1,7 @@
 <?php
 /*
-    ndpoint pra buscar a versão mais recente dos Termos
-    Método: POST
+    Endpoint pra buscar a versão mais recente dos Termos
+    Método: GET
     Recebe: Nada
     Retorna: JSON { ...dados do termo... }
 */

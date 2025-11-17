@@ -1,15 +1,15 @@
 <?php
 /*
-    Endpoint pra "pagar" uma reserva e confirmá-la.
+    Endpoint pra "pagar" uma reserva e confirmá-la automaticamente
     Método: POST
-    Recebe: JSON { "reserva_id": X, "dados_cartao": { ... } }
+    Recebe: JSON { "reserva_id": X }
     Retorna: JSON { "status": "sucesso" } ou { "status": "erro", ... }
 */
 
-// 1. Inclui o arquivo de configuração
+
 require_once '../config.php';
 
-// 2. Verifica se o usuário está logado
+
 if (!isset($_SESSION['usuario_id'])) {
     http_response_code(401); // Unauthorized
     echo json_encode([
@@ -19,10 +19,12 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-// 3. Pega os dados do JSON ($dadosRecebidos)
-$reserva_id = $dadosRecebidos['reserva_id'];
 
-// 4. Valida os dados
+$json = file_get_contents('php://input');
+$dadosRecebidos = json_decode($json, true);
+$reserva_id = $dadosRecebidos['reserva_id'] ?? '';
+
+
 if (empty($reserva_id)) {
     http_response_code(400); // Bad Request
     echo json_encode([
@@ -32,15 +34,16 @@ if (empty($reserva_id)) {
     exit();
 }
 
-// 5. Inicia a Transação (Obrigatório, pois são 2 tabelas)
-// (Vai atualizar 2 tabelas: Pagamentos e Reservas)
+
 $conexao->begin_transaction();
 
 try {
-    // --- Passo 1: Busca o valor da reserva ---
-    // (Precisa saber o valor pra pagar)
-    $sql_valor = "SELECT valor_total_diarias, status_reserva FROM Reservas WHERE id = $reserva_id";
-    $result_valor = $conexao->query($sql_valor);
+    
+    $sql_valor = "SELECT valor_total_diarias, status_reserva FROM Reservas WHERE id = ?";
+    $stmt_valor = $conexao->prepare($sql_valor);
+    $stmt_valor->bind_param("i", $reserva_id);
+    $stmt_valor->execute();
+    $result_valor = $stmt_valor->get_result();
 
     if ($result_valor->num_rows == 0) {
         throw new Exception('Reserva não encontrada.');
@@ -49,45 +52,52 @@ try {
     $reserva = $result_valor->fetch_assoc();
     $valor_a_pagar = $reserva['valor_total_diarias'];
     $status_atual = $reserva['status_reserva'];
+    $stmt_valor->close();
 
-    // Verificação: Só é possível pagar uma reserva PENDENTE
+   
     if ($status_atual != 'PENDENTE') {
         throw new Exception('Esta reserva não está pendente de pagamento.');
     }
 
-    // --- Passo 2: Inserir o registro de Pagamento ---
-    // Aqui é simulado um pagamento de 'DIARIA' feito com 'CARTAO_ONLINE'
+   
     $sql_pagamento = "INSERT INTO Pagamentos 
                         (fk_reserva_id, valor, tipo, metodo, status_pagamento)
                       VALUES 
-                        ($reserva_id, $valor_a_pagar, 'DIARIA', 'CARTAO_ONLINE', 'APROVADO')";
+                        (?, ?, 'DIARIA', 'CARTAO_ONLINE', 'APROVADO')";
 
-    if (!$conexao->query($sql_pagamento)) {
-        throw new Exception('Erro ao registrar o pagamento: ' . $conexao->error);
+    $stmt_pagamento = $conexao->prepare($sql_pagamento);
+    $stmt_pagamento->bind_param("id", $reserva_id, $valor_a_pagar);
+
+    if (!$stmt_pagamento->execute()) {
+        throw new Exception('Erro ao registrar o pagamento: ' . $stmt_pagamento->error);
     }
+    $stmt_pagamento->close();
 
-    // --- Passo 3: Atualiza o status da Reserva ---
-    // Agora que o pagamento foi APROVADO, a reserva fica CONFIRMADA
+    
     $sql_update_reserva = "UPDATE Reservas 
                            SET status_reserva = 'CONFIRMADA' 
-                           WHERE id = $reserva_id AND status_reserva = 'PENDENTE'";
+                           WHERE id = ?";
 
-    if (!$conexao->query($sql_update_reserva)) {
-        throw new Exception('Erro ao confirmar a reserva: ' . $conexao->error);
+    $stmt_update = $conexao->prepare($sql_update_reserva);
+    $stmt_update->bind_param("i", $reserva_id);
+
+    if (!$stmt_update->execute()) {
+        throw new Exception('Erro ao confirmar a reserva: ' . $stmt_update->error);
     }
+    $stmt_update->close();
 
-    // --- Sucesso: Efetiva a Transação ---
+   
     $conexao->commit();
 
-    // Retorna uma resposta de sucesso para o JavaScript
+    
     http_response_code(200);
     echo json_encode([
         'status' => 'sucesso',
-        'mensagem' => 'Pagamento aprovado e reserva confirmada.'
+        'mensagem' => 'Pagamento aprovado e reserva confirmada com sucesso!'
     ]);
 
 } catch (Exception $e) {
-    // --- Falha: Reverte a Transação ---
+    
     $conexao->rollback();
 
     http_response_code(500); // Internal Server Error

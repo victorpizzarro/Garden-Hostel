@@ -6,10 +6,10 @@
     Retorna: JSON { "logado": true, "tipo": "...", "nome": "..." } ou { "logado": false }
 */
 
-// 1. Inclui o arquivo de configuração (ele inicia a sessão)
+
 require_once '../config.php';
 
-// 2. Verifica se a sessão existe
+
 if (isset($_SESSION['usuario_id']) && isset($_SESSION['usuario_tipo'])) {
     // --- Sim, está logado ---
     http_response_code(200);

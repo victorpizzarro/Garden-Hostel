@@ -1,123 +1,128 @@
 <?php
-/*
-    Endpoint pro Admin Master gerenciar (CRUD) as Vagas
-    Método: GET (pra Listar) ou POST (pra Criar, Alterar, Excluir)
-    GET ?acao=listar&quarto_id=X (Lista vagas de um quarto específico)
-    POST { "acao": "criar", "dados": { ... } }
-    POST { "acao": "alterar", "id": X, "dados": { ... } }
-    POST { "acao": "excluir", "id": X }
-*/
+/**
+ * Arquivo: api/admin/vaga_crud.php
+ * Descrição: Endpoint para operações CRUD de vagas
+ */
 
-// 1. Inclui o arquivo de configuração
 require_once '../config.php';
 
-// 2. Verifica se o usuário é ADMIN_MASTER
-if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 'ADMIN_MASTER') {
-    http_response_code(401); // Unauthorized
-    echo json_encode([
-        'status' => 'erro',
-        'mensagem' => 'Acesso negado. Apenas o Admin Master pode gerenciar vagas.'
-    ]);
+// Verifica se o usuário está logado
+if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] != 'ATENDENTE' && $_SESSION['usuario_tipo'] != 'ADMIN_MASTER')) {
+    http_response_code(401);
+    echo json_encode(['status' => 'erro', 'mensagem' => 'Acesso negado.']);
     exit();
 }
 
-$metodo = $_SERVER['REQUEST_METHOD'];
-$acao = '';
 
-if ($metodo == 'GET') {
-    $acao = isset($_GET['acao']) ? $_GET['acao'] : 'listar';
-} else if ($metodo == 'POST') {
-    $acao = isset($dadosRecebidos['acao']) ? $dadosRecebidos['acao'] : '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $json = file_get_contents('php://input');
+    $dadosRecebidos = json_decode($json, true);
+    $acao = $dadosRecebidos['acao'];
+} else {
+    $acao = isset($_GET['acao']) ? $_GET['acao'] : '';
 }
 
-// 3. Lógica CRUD
-switch ($acao) {
-    // --- LISTAR (READ) ---
-    case 'listar':
-        // É obrigatório informar de qual quarto devemos listar as vagas
-        if (!isset($_GET['quarto_id'])) {
-            http_response_code(400);
-            echo json_encode(['status' => 'erro', 'mensagem' => 'ID do quarto é obrigatório para listar vagas.']);
-            exit();
-        }
-        $quarto_id = $_GET['quarto_id'];
-        
-        $sql = "SELECT * FROM Vagas WHERE fk_quarto_id = $quarto_id ORDER BY nome_identificador ASC";
-        $resultado = $conexao->query($sql);
-        $vagas = [];
-        while ($linha = $resultado->fetch_assoc()) {
-            $vagas[] = $linha;
-        }
-        echo json_encode($vagas);
-        break;
+try {
+    switch($acao) {
+        case 'listar_por_quarto':
+            listarVagasPorQuarto();
+            break;
+        case 'criar':
+            criarVaga();
+            break;
+        case 'excluir':
+            excluirVaga();
+            break;
+        default:
+            throw new Exception('Ação não especificada. Use "listar_por_quarto", "criar" ou "excluir".');
+    }
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode(['status' => 'erro', 'mensagem' => $e->getMessage()]);
+}
 
-    // --- CRIAR (CREATE) ---
-    case 'criar':
-        $dados = $dadosRecebidos['dados'];
-        $sql = "INSERT INTO Vagas (fk_quarto_id, nome_identificador, descricao_peculiaridades_pt, descricao_peculiaridades_en)
-                VALUES ({$dados['fk_quarto_id']}, '{$dados['nome_identificador']}', '{$dados['descricao_peculiaridades_pt']}', '{$dados['descricao_peculiaridades_en']}')";
-        
-        if ($conexao->query($sql)) {
-            echo json_encode(['status' => 'sucesso', 'mensagem' => 'Vaga criada.', 'id' => $conexao->insert_id]);
-        } else {
-            // Erro caso tente criar vaga com um nome_identificador duplicado no mesmo quarto
-            if ($conexao->errno == 1062) { // Chave duplicada
-                echo json_encode(['status' => 'erro', 'mensagem' => 'Erro: Já existe uma vaga com este nome/identificador neste quarto.']);
-            } else {
-                http_response_code(500);
-                echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao criar vaga: ' . $conexao->error]);
-            }
-        }
-        break;
+function listarVagasPorQuarto() {
+    global $conexao;
+    
+    $quarto_id = isset($_GET['quarto_id']) ? $_GET['quarto_id'] : '';
+    
+    if (empty($quarto_id)) {
+        throw new Exception('ID do quarto não fornecido.');
+    }
+    
+    $sql = "SELECT id, nome_identificador, descricao_peculiaridades_pt, descricao_peculiaridades_en
+            FROM Vagas 
+            WHERE fk_quarto_id = ?
+            ORDER BY nome_identificador";
+    
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $quarto_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $vagas = [];
+    
+    while ($linha = $result->fetch_assoc()) {
+        $vagas[] = $linha;
+    }
+    
+    $stmt->close();
+    
+    echo json_encode($vagas);
+}
 
-    // --- ALTERAR (UPDATE) ---
-    case 'alterar':
-        $id = $dadosRecebidos['id'];
-        $dados = $dadosRecebidos['dados'];
-        
-        $sql = "UPDATE Vagas SET
-                    nome_identificador = '{$dados['nome_identificador']}',
-                    descricao_peculiaridades_pt = '{$dados['descricao_peculiaridades_pt']}',
-                    descricao_peculiaridades_en = '{$dados['descricao_peculiaridades_en']}'
-                WHERE id = $id";
+function criarVaga() {
+    global $conexao, $dadosRecebidos;
+    
+    $dados = $dadosRecebidos['dados'];
+    
+    $sql = "INSERT INTO Vagas (fk_quarto_id, nome_identificador, descricao_peculiaridades_pt, descricao_peculiaridades_en)
+            VALUES (?, ?, ?, ?)";
+    
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("isss", 
+        $dados['fk_quarto_id'],
+        $dados['nome_identificador'],
+        $dados['descricao_pt'],
+        $dados['descricao_en']
+    );
+    
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'sucesso', 'mensagem' => 'Vaga criada com sucesso.']);
+    } else {
+        throw new Exception('Erro ao criar vaga: ' . $stmt->error);
+    }
+    
+    $stmt->close();
+}
 
-        if ($conexao->query($sql)) {
-            echo json_encode(['status' => 'sucesso', 'mensagem' => 'Vaga alterada.']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao alterar vaga: ' . $conexao->error]);
-        }
-        break;
-
-    // --- EXCLUIR (DELETE) ---
-    case 'excluir':
-        $id = $dadosRecebidos['id'];
-
-        // Lógica de Exclusão
-        // 1. Checar se a vaga tem "filhos" (reservas)
-        $sql_check = "SELECT id FROM Reservas_Vagas WHERE fk_vaga_id = $id";
-        $result_check = $conexao->query($sql_check);
-
-        if ($result_check->num_rows > 0) {
-            // Se tem reservas, não pode excluir
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'erro', 'mensagem' => 'Esta vaga não pode ser excluída pois está vinculada a reservas (ativas ou passadas).']);
-            exit();
-        }
-
-        // 2. Se não tem reservas, pode excluir
-        $sql_delete = "DELETE FROM Vagas WHERE id = $id";
-        if ($conexao->query($sql_delete)) {
-            echo json_encode(['status' => 'sucesso', 'mensagem' => 'Vaga excluída.']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao excluir vaga: ' . $conexao->error]);
-        }
-        break;
-
-    default:
-        http_response_code(400);
-        echo json_encode(['status' => 'erro', 'mensagem' => 'Ação não reconhecida.']);
-        break;
+function excluirVaga() {
+    global $conexao, $dadosRecebidos;
+    
+    $id = $dadosRecebidos['id'];
+    
+    
+    $sql_check = "SELECT COUNT(*) as total FROM Reservas_Vagas WHERE fk_vaga_id = ?";
+    $stmt_check = $conexao->prepare($sql_check);
+    $stmt_check->bind_param("i", $id);
+    $stmt_check->execute();
+    $result = $stmt_check->get_result();
+    $row = $result->fetch_assoc();
+    $stmt_check->close();
+    
+    if ($row['total'] > 0) {
+        throw new Exception('Não é possível excluir a vaga. Existem reservas associadas.');
+    }
+    
+    $sql = "DELETE FROM Vagas WHERE id = ?";
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'sucesso', 'mensagem' => 'Vaga excluída com sucesso.']);
+    } else {
+        throw new Exception('Erro ao excluir vaga: ' . $stmt->error);
+    }
+    
+    $stmt->close();
 }
 ?>

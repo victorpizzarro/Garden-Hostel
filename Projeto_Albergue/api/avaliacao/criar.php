@@ -6,7 +6,7 @@
     Retorna: JSON { "status": "sucesso" } ou { "status": "erro", ... }
 */
 
-// 1. Inclui o arquivo de configuração
+
 require_once '../config.php';
 
 // 2. Verifica se o usuário está logado
@@ -19,15 +19,15 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 'CLIENTE') {
     exit();
 }
 
-// 3. Pega os dados do JSON ($dadosRecebidos) e da Sessão
+
 $cliente_id = $_SESSION['usuario_id'];
 $reserva_id = $dadosRecebidos['reserva_id'];
 $nota = $dadosRecebidos['nota'];
 $comentario = $dadosRecebidos['comentario'];
 
-// 4. Valida os dados
+
 if (empty($reserva_id) || empty($nota)) {
-    http_response_code(400); // Bad Request
+    http_response_code(400); 
     echo json_encode([
         'status' => 'erro',
         'mensagem' => 'ID da reserva e nota são obrigatórios.'
@@ -35,7 +35,7 @@ if (empty($reserva_id) || empty($nota)) {
     exit();
 }
 
-// 5. Lógica de Negócio
+
 // Antes de inserir, precisa checar duas regras:
 // 1. O cliente logado é o dono da reserva?
 // 2. A reserva está com o status 'FINALIZADA'?
@@ -77,7 +77,7 @@ if ($reserva['status_reserva'] != 'FINALIZADA') {
     exit();
 }
 
-// 6. Insere a Avaliação
+
 // A avaliação já nasce como 'PENDENTE',
 // esperando a moderação do Admin Master.
 $sql_insert = "INSERT INTO Avaliacoes (fk_reserva_id, fk_cliente_id, nota, comentario)
@@ -90,8 +90,7 @@ if ($conexao->query($sql_insert)) {
         'mensagem' => 'Avaliação enviada com sucesso. Ela será publicada após moderação.'
     ]);
 } else {
-    // Erro comum: O cliente tenta avaliar a mesma reserva duas vezes
-    // (o banco tem uma 'UNIQUE KEY' no 'fk_reserva_id')
+    
     if ($conexao->errno == 1062) { // Erro de Duplicidade
         http_response_code(400);
         echo json_encode([

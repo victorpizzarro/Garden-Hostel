@@ -16,7 +16,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 'CLIENTE') {
     exit();
 }
 
-// 3. Pega o ID da reserva
+
 if (!isset($_GET['reserva_id'])) {
     http_response_code(400);
     echo json_encode(['status' => 'erro', 'mensagem' => 'ID da reserva não fornecido.']);
@@ -24,7 +24,7 @@ if (!isset($_GET['reserva_id'])) {
 }
 $reserva_id = $_GET['reserva_id'];
 
-// 4. Busca a avaliação
+
 $sql = "SELECT nota, comentario 
         FROM Avaliacoes 
         WHERE fk_reserva_id = $reserva_id 

@@ -123,10 +123,47 @@
 
     <div id="modal-login-reserva" class="modal-overlay">
         <div class="login-form" id="login-modal-content">
+            <button type="button" class="modal-close-form" id="modal-login-close">×</button>
+            
             <div id="modal-form-login">
+                <h2 class="form-title" data-key="login-titulo">Acessar minha conta</h2>
+                <div id="modal-login-error" class="error-message" style="display: none;"></div>
+                <div class="form-field">
+                    <label for="modal-login-email" data-key="login-email">Email</label>
+                    <input type="email" id="modal-login-email" required>
                 </div>
+                <div class="form-field">
+                    <label for="modal-login-senha" data-key="login-senha">Senha</label>
+                    <input type="password" id="modal-login-senha" required>
+                </div>
+                <button type="button" id="modal-btn-login" class="btn btn-login-submit" data-key="login-btn-entrar">Entrar</button>
+                <p class="form-switcher">
+                    <span data-key="login-nao-tem-conta">Ainda não tem conta?</span> 
+                    <a href="#" id="modal-show-register" data-key="login-cadastre">Cadastre-se aqui</a>
+                </p>
+            </div>
+            
             <div id="modal-form-register" class="hidden">
+                <h2 class="form-title" data-key="reg-titulo">Criar nova conta</h2>
+                <div id="modal-register-error" class="error-message" style="display: none;"></div>
+                <div class="form-field">
+                    <label for="modal-reg-nome" data-key="reg-nome">Nome Completo</label>
+                    <input type="text" id="modal-reg-nome" required>
                 </div>
+                <div class="form-field">
+                    <label for="modal-reg-email" data-key="reg-email">Email</label>
+                    <input type="email" id="modal-reg-email" required>
+                </div>
+                <div class="form-field">
+                    <label for="modal-reg-senha" data-key="reg-senha">Senha</label>
+                    <input type="password" id="modal-reg-senha" required>
+                </div>
+                <button type="button" id="modal-btn-register" class="btn btn-login-submit" data-key="reg-btn-criar">Criar Conta</button>
+                <p class="form-switcher">
+                    <span data-key="reg-ja-tem-conta">Já tem uma conta?</span> 
+                    <a href="#" id="modal-show-login" data-key="reg-faca-login">Faça o login aqui</a>
+                </p>
+            </div>
         </div>
     </div>
     

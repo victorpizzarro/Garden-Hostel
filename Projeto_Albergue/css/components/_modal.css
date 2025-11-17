@@ -182,3 +182,41 @@
     width: 48%; /* Divide o espaço */
     padding: 12px;
 }
+
+
+/* ===================================================
+   SCROLL DO MODAL DE QUARTO (VERSÃO 3.0 - FORÇADA)
+   =================================================== */
+
+/* 1. Força o container do modal a ter um limite de altura e ser flex */
+#modal-form-content.login-form {
+    max-height: 90vh !important; /* <--- FORÇA A ALTURA MÁXIMA */
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important; 
+  }
+  
+  /* 2. Força o formulário a ser flex e ocupar o espaço */
+  #form-quarto {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+    overflow: hidden !important; /* Esconde o overflow do *formulário* */
+  }
+  
+  /* 3. Força o 'miolo' a ter o scroll */
+  .form-scroll-content {
+    overflow-y: auto !important; /* <--- FORÇA A BARRA DE SCROLL */
+    overflow-x: hidden !important;
+    flex-grow: 1 !important;
+    flex-shrink: 1 !important;
+    padding: 10px 15px 10px 5px !important;
+  }
+  
+  /* 4. Força os botões a ficarem no lugar */
+  #form-quarto .form-actions {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    padding-top: 20px !important;
+  }

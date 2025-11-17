@@ -6,10 +6,10 @@
     Retorna: JSON { ...dados do usuário e endereço... }
 */
 
-// 1. Inclui o arquivo de configuração
+
 require_once '../config.php';
 
-// 2. Verifica se o usuário está logado (SÓ CLIENTE)
+
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 'CLIENTE') {
     http_response_code(401);
     echo json_encode(['status' => 'erro', 'mensagem' => 'Acesso negado.']);
@@ -18,7 +18,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 'CLIENTE') {
 
 $cliente_id = $_SESSION['usuario_id'];
 
-// 3. Busca os dados (das tabelas Usuarios e Enderecos)
+
 $sql = "SELECT 
             u.nome_completo,
             u.email,

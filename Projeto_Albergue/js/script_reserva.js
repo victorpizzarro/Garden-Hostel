@@ -1,7 +1,7 @@
 /**
  * Arquivo: /js/script_reserva.js
  * Descrição: Lógica da Página de Reserva (reserva.html)
- * (Versão 2.0 - Com Seletor de Quantidade e Modal de Login)
+ * (Versão 3.0 - CORRIGIDO o cálculo de dias e o fallback de termo_id)
  */
 
 // ========================================================================
@@ -26,7 +26,6 @@ const dicionarioTextos = {
         'erro-login-texto': 'Você precisa fazer o login ou criar uma conta para continuar sua reserva.',
         'resumo-vazio': 'Selecione uma ou mais vagas na lista ao lado.',
         'card-vagas': 'Vagas Livres', 'card-selecionar': 'Quantas vagas?',
-        // (Textos do Modal de Login - copiados do script_auth.js)
         'login-titulo': 'Acessar minha conta', 'login-email': 'Email', 'login-senha': 'Senha',
         'login-btn-entrar': 'Entrar', 'login-nao-tem-conta': 'Ainda não tem conta?', 'login-cadastre': 'Cadastre-se aqui',
         'reg-titulo': 'Criar nova conta', 'reg-nome': 'Nome Completo', 'reg-email': 'Email', 'reg-senha': 'Senha',
@@ -73,7 +72,8 @@ let carrinho = {
     checkin: '',
     checkout: '',
     qtd_vagas: 0,
-    preco_unidade: 0
+    preco_unidade: 0,
+    dias: 0
 };
 
 /**
@@ -106,7 +106,11 @@ function carregarVagasDisponiveis() {
     const listaContainer = document.getElementById('lista-quartos-disponiveis');
     listaContainer.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['reserva-buscando']}</p>`;
     
-    carrinho = {}; // Limpa o carrinho
+    // Reseta o carrinho
+    carrinho = {
+        vagas_ids: [], quarto_nome: '', valor_total: 0, checkin: '', 
+        checkout: '', qtd_vagas: 0, preco_unidade: 0, dias: 0
+    }; 
     atualizarResumo(); // Limpa o resumo
     
     const checkin = document.getElementById('reserva-checkin').value;
@@ -115,6 +119,12 @@ function carregarVagasDisponiveis() {
     // Guarda as datas no carrinho
     carrinho.checkin = checkin;
     carrinho.checkout = checkout;
+    
+    // Se as datas não estiverem preenchidas, não busca
+    if (!checkin || !checkout) {
+        listaContainer.innerHTML = `<p>Por favor, selecione as datas de check-in e check-out.</p>`;
+        return;
+    }
 
     fetch(`api/reserva/buscar_vagas.php?checkin=${checkin}&checkout=${checkout}`)
         .then(response => response.json())
@@ -132,7 +142,7 @@ function carregarVagasDisponiveis() {
                 if (!quartos[vaga.quarto_id]) {
                     quartos[vaga.quarto_id] = {
                         id: vaga.quarto_id,
-                        nome: (idiomaAtual === 'en') ? vaga.quarto_descricao_en : vaga.quarto_descricao_pt,
+                        nome: (idiomaAtual === 'en') ? (vaga.quarto_descricao_en || vaga.quarto_nome) : (vaga.quarto_descricao_pt || vaga.quarto_nome), // Fallback para nome
                         preco: vaga.preco_diaria,
                         capacidade: vaga.quarto_capacidade,
                         tem_banheiro: vaga.quarto_tem_banheiro,
@@ -148,11 +158,11 @@ function carregarVagasDisponiveis() {
                 
                 // Cria o <select> de quantidade
                 let selectHTML = `<select class="quarto-select-vagas" 
-                                    data-quarto-id="${quarto.id}"
-                                    data-nome="${quarto.nome}"
-                                    data-preco="${quarto.preco}"
-                                    data-vagas-disponiveis="${quarto.vagas.join(',')}"
-                                 >`;
+                                     data-quarto-id="${quarto.id}"
+                                     data-nome="${quarto.nome}"
+                                     data-preco="${quarto.preco}"
+                                     data-vagas-disponiveis="${quarto.vagas.join(',')}"
+                                   >`;
                 selectHTML += `<option value="0">0 ${dicionarioTextos[idiomaAtual]['resumo-vagas']}</option>`;
                 for (let i = 1; i <= quarto.vagas.length; i++) {
                     selectHTML += `<option value="${i}">${i} ${dicionarioTextos[idiomaAtual]['resumo-vagas']}</option>`;
@@ -162,7 +172,7 @@ function carregarVagasDisponiveis() {
                 const card = document.createElement('div');
                 card.className = 'quarto-card';
                 card.innerHTML = `
-                    <img src="imagens/quarto-${quarto.capacidade}-camas.jpg" alt="${quarto.nome}" class="quarto-img">
+                    <img src="https://placehold.co/400x300/f57c00/white?text=${quarto.nome.replace(' ', '+')}" alt="${quarto.nome}" class="quarto-img">
                     <div class="quarto-info">
                         <h3>${quarto.nome}</h3>
                         <div class="quarto-detalhes">
@@ -171,7 +181,7 @@ function carregarVagasDisponiveis() {
                         </div>
                     </div>
                     <div class="quarto-preco">
-                        <span class="preco">R$ ${quarto.preco}</span>
+                        <span class="preco">R$ ${parseFloat(quarto.preco).toFixed(2)}</span>
                         <p class="preco-label">/ ${dicionarioTextos[idiomaAtual]['resumo-vagas']}</p>
                         <div class="quarto-quantidade">
                             <label>${dicionarioTextos[idiomaAtual]['card-selecionar']}</label>
@@ -200,7 +210,7 @@ function atualizarResumo() {
         // Tem itens no carrinho
         resumoContainer.innerHTML = `
             <p><strong>${dicionarioTextos[idiomaAtual]['resumo-quarto']}:</strong> <span>${carrinho.quarto_nome}</span></p>
-            <p><strong>${dicionarioTextos[idiomaAtual]['resumo-vagas']}:</strong> <span>${carrinho.qtd_vagas}</span></p>
+            <p><strong>${dicionarioTextos[idiomaAtual]['resumo-vagas']}:</strong> <span>${carrinho.qtd_vagas} (${carrinho.dias} diárias)</span></p>
             <p><strong>${dicionarioTextos[idiomaAtual]['resumo-total']}:</strong> <span id="resumo-valor-total">R$ ${carrinho.valor_total.toFixed(2)}</span></p>
         `;
         btnAcao.disabled = false; // Habilita o botão
@@ -232,12 +242,8 @@ function avancarParaPasso2() {
     // 4. Muda o texto do botão principal
     document.getElementById('btn-acao-principal').innerText = dicionarioTextos[idiomaAtual]['reserva-btn-confirmar'];
     
-    // 5. Preenche o Resumo do Checkout
-    document.getElementById('resumo-quarto-nome').innerText = carrinho.quarto_nome;
-    document.getElementById('resumo-vagas-qtd').innerText = carrinho.qtd_vagas;
-    document.getElementById('resumo-valor-total').innerText = `R$ ${carrinho.valor_total.toFixed(2)}`;
-    document.getElementById('resumo-checkin').innerText = carrinho.checkin;
-    document.getElementById('resumo-checkout').innerText = carrinho.checkout;
+    // 5. Atualiza o Resumo do Checkout (já está sendo atualizado pela função atualizarResumo)
+    atualizarResumo();
 }
 
 // "Ouve" o evento de que a página HTML foi 100% carregada
@@ -274,23 +280,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkinURL = urlParams.get('checkin');
     const checkoutURL = urlParams.get('checkout');
 
-    if (checkinURL && checkoutURL) {
-        inputCheckin.value = checkinURL;
-        inputCheckout.value = checkoutURL;
-    }
+    // Define datas padrão (Hoje e Amanhã) se não vierem da URL
+    const hoje = new Date();
+    const amanha = new Date(hoje);
+    amanha.setDate(amanha.getDate() + 1);
+    
+    const hojeStr = hoje.toISOString().split('T')[0];
+    const amanhaStr = amanha.toISOString().split('T')[0];
+
+    inputCheckin.value = checkinURL || hojeStr;
+    inputCheckout.value = checkoutURL || amanhaStr;
+    inputCheckin.min = hojeStr; // Impede datas passadas
+    inputCheckout.min = amanhaStr; // Impede datas passadas
 
     // Busca os Termos de Uso (RF09)
     fetch('api/termos/buscar_recente.php')
         .then(r => r.json())
         .then(termo => {
-            termoIdAtual = termo.termo_id; 
+            termoIdAtual = termo.id; // <- CORREÇÃO: A API deve retornar 'id', não 'termo_id'
+        }).catch(err => {
+            console.warn("Não foi possível carregar o ID dos termos, usando fallback '1'.");
+            termoIdAtual = 1; // Fallback caso a API falhe
         });
 
     // Carrega as vagas do Passo 1
     carregarVagasDisponiveis();
     
     // --- 3. Lógica: Mudar as datas (RF01 - Melhoria) ---
-    inputCheckin.addEventListener('change', carregarVagasDisponiveis);
+    inputCheckin.addEventListener('change', () => {
+        // Atualiza a data mínima do checkout
+        const dataCheckin = new Date(inputCheckin.value + 'T12:00:00');
+        const dataMinCheckout = new Date(dataCheckin);
+        dataMinCheckout.setDate(dataMinCheckout.getDate() + 1);
+        inputCheckout.min = dataMinCheckout.toISOString().split('T')[0];
+        
+        // Se o checkout for inválido, ajusta
+        if (new Date(inputCheckout.value) <= dataCheckin) {
+            inputCheckout.value = inputCheckout.min;
+        }
+        
+        carregarVagasDisponiveis();
+    });
     inputCheckout.addEventListener('change', carregarVagasDisponiveis);
     
     // --- 4. Lógica: Selecionar Vagas (Passo 1) ---
@@ -303,14 +333,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const vagasDisponiveis = select.getAttribute('data-vagas-disponiveis').split(',');
 
             // Pega as X primeiras vagas da lista
-            const vagasSelecionadas = vagasDisponiveis.slice(0, qtd);
+            const vagasSelecionadas = vagasDisponiveis.slice(0, qtd).map(id => parseInt(id)); // Garante que são números
+            
+            // ================== INÍCIO DA CORREÇÃO 1 (Cálculo de Dias) ==================
+            // Calcula o número de dias
+            const checkinStr = document.getElementById('reserva-checkin').value;
+            const checkoutStr = document.getElementById('reserva-checkout').value;
+            
+            // Adiciona T12:00:00 para evitar problemas de fuso horário/DST
+            const checkin = new Date(checkinStr + 'T12:00:00'); 
+            const checkout = new Date(checkoutStr + 'T12:00:00');
+            
+            let dias = 1; // Padrão de 1 dia
+            if (checkout > checkin) {
+                 const diffTime = Math.abs(checkout - checkin);
+                 dias = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            }
+            // ================== FIM DA CORREÇÃO 1 ==================
             
             // Atualiza o "carrinho"
             carrinho.qtd_vagas = qtd;
             carrinho.vagas_ids = vagasSelecionadas;
             carrinho.quarto_nome = select.getAttribute('data-nome');
             carrinho.preco_unidade = preco;
-            carrinho.valor_total = preco * qtd;
+            carrinho.dias = dias; // Salva os dias
+            carrinho.valor_total = preco * qtd * dias; // <-- CÁLCULO CORRETO
 
             // Atualiza o Resumo (na sidebar)
             atualizarResumo();
@@ -332,87 +379,55 @@ document.addEventListener('DOMContentLoaded', () => {
         const passo1 = document.getElementById('passo-1-selecao');
         
         if (!passo1.classList.contains('hidden')) {
-            // --- ESTAMOS NO PASSO 1 (Clicou em "Reservar Agora") ---
-            // (Chama o "Gargalo de Login")
+           
             checarLoginParaReservar();
         } else {
-            // --- ESTAMOS NO PASSO 2 (Clicou em "Confirmar Pagamento") ---
+            
             finalizarPagamento();
         }
     });
     
     // --- 6. Lógica do Modal de Login (O "Gargalo") ---
+    
     const modalLogin = document.getElementById('modal-login-reserva');
     const modalFormLogin = document.getElementById('modal-form-login');
     const modalFormRegister = document.getElementById('modal-form-register');
-    
-    // Troca para "Cadastro"
-    document.getElementById('modal-show-register').addEventListener('click', (e) => {
-        e.preventDefault();
-        modalFormLogin.classList.add('hidden');
-        modalFormRegister.classList.remove('hidden');
-    });
-    // Troca para "Login"
-    document.getElementById('modal-show-login').addEventListener('click', (e) => {
-        e.preventDefault();
-        modalFormRegister.classList.add('hidden');
-        modalFormLogin.classList.remove('hidden');
-    });
-    // Fecha o modal
-    document.getElementById('modal-login-close').addEventListener('click', (e) => {
-        modalLogin.classList.remove('active');
-    });
-
-    // (Lógica de Fazer Login DENTRO do modal)
+    document.getElementById('modal-show-register').addEventListener('click', (e) => { e.preventDefault(); modalFormLogin.classList.add('hidden'); modalFormRegister.classList.remove('hidden'); });
+    document.getElementById('modal-show-login').addEventListener('click', (e) => { e.preventDefault(); modalFormRegister.classList.add('hidden'); modalFormLogin.classList.remove('hidden'); });
+    document.getElementById('modal-login-close').addEventListener('click', (e) => { modalLogin.classList.remove('active'); });
     document.getElementById('modal-btn-login').addEventListener('click', () => {
         const email = document.getElementById('modal-login-email').value;
         const senha = document.getElementById('modal-login-senha').value;
-        
-        fetch('api/usuario/login.php', {
-            method: 'POST', credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, senha: senha })
-        })
+        fetch('api/usuario/login.php', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, senha: senha }) })
         .then(r => r.json())
         .then(data => {
             if (data.status === 'sucesso') {
-                modalLogin.classList.remove('active'); // Fecha o modal
-                avancarParaPasso2(); // Avança para o pagamento
+                modalLogin.classList.remove('active');
+                avancarParaPasso2();
             } else {
                 document.getElementById('modal-login-error').innerText = "Email ou senha inválidos.";
                 document.getElementById('modal-login-error').style.display = 'block';
             }
         });
     });
-    
-    // (Lógica de Fazer Cadastro DENTRO do modal)
-    // (Vamos pular a validação complexa aqui)
     document.getElementById('modal-btn-register').addEventListener('click', () => {
-        // (A API de cadastro do modal só precisa do essencial)
         const dados = {
             nome_completo: document.getElementById('modal-reg-nome').value,
             email: document.getElementById('modal-reg-email').value,
             senha: document.getElementById('modal-reg-senha').value,
-            // (Enviamos o mínimo, a API completa o resto)
         };
-
-        fetch('api/usuario/cadastro_simplificado.php', { // (Precisamos criar esta API)
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        })
+        fetch('api/usuario/cadastro_simplificado.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) })
         .then(r => r.json())
         .then(data => {
             if (data.status === 'sucesso') {
                 alert("Conta criada! Por favor, faça o login para continuar.");
-                document.getElementById('modal-show-login').click(); // Volta pro login
+                document.getElementById('modal-show-login').click();
             } else {
                 document.getElementById('modal-register-error').innerText = data.mensagem;
                 document.getElementById('modal-register-error').style.display = 'block';
             }
         });
     });
-
 
 }); // Fim do 'DOMContentLoaded'
 
@@ -431,8 +446,11 @@ function checarLoginParaReservar() {
         } else {
             // --- Usuário NÃO está logado ---
             // (Limpa os formulários do modal e o abre)
-            document.getElementById('modal-form-login').reset();
-            document.getElementById('modal-form-register').reset();
+            document.getElementById('modal-login-email').value = '';
+            document.getElementById('modal-login-senha').value = '';
+            document.getElementById('modal-reg-nome').value = '';
+            document.getElementById('modal-reg-email').value = '';
+            document.getElementById('modal-reg-senha').value = '';
             document.getElementById('modal-login-error').style.display = 'none';
             document.getElementById('modal-register-error').style.display = 'none';
             
@@ -459,7 +477,9 @@ function finalizarPagamento() {
         checkin: carrinho.checkin,
         checkout: carrinho.checkout,
         valor_total: carrinho.valor_total,
-        termo_id: termoIdAtual,
+        // ================== INÍCIO DA CORREÇÃO 2 (termo_id) ==================
+        termo_id: termoIdAtual || 1, // <-- CORREÇÃO: Usa 1 como fallback se a API de termos falhar
+        // ================== FIM DA CORREÇÃO 2 ==================
     };
 
     // 3. Chama a API para CRIAR a reserva (status PENDENTE)
@@ -472,8 +492,9 @@ function finalizarPagamento() {
     .then(response => response.json())
     .then(dataCriacao => {
         if (dataCriacao.status === 'erro') {
+            // Se a criação falhar (ex: "Dados incompletos"), mostra o erro e PARA
             mostrarErro(dataCriacao.mensagem);
-            return;
+            return; // Impede a chamada de pagamento
         }
         
         // 4. SUCESSO (PENDENTE). Agora, PAGA (CONFIRMA)
@@ -483,7 +504,7 @@ function finalizarPagamento() {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reserva_id: reservaId, dados_cartao: 'simulado' })
+            body: JSON.stringify({ reserva_id: reservaId, dados_cartao: 'simulado' }) // (Simula o pagamento)
         })
         .then(response => response.json())
         .then(dataPagamento => {

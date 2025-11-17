@@ -6,12 +6,12 @@
     Retorna: JSON { "status": "sucesso", "consumo_id": X } ou { "status": "erro", ... }
 */
 
-// 1. Inclui o arquivo de configuração
+
 require_once '../config.php';
 
-// 2. Verifica se o usuário está logado (como Atendente ou Admin)
+//Verifica se o usuário está logado (como Atendente ou Admin)
 if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] != 'ATENDENTE' && $_SESSION['usuario_tipo'] != 'ADMIN_MASTER')) {
-    http_response_code(401); // Unauthorized
+    http_response_code(401); 
     echo json_encode([
         'status' => 'erro',
         'mensagem' => 'Acesso negado. Você precisa ser um Atendente ou Admin.'
@@ -19,13 +19,13 @@ if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_tipo'] != 'ATENDENTE'
     exit();
 }
 
-// 3. Pega os dados do JSON ($dadosRecebidos) e da Sessão
+
 $reserva_id = $dadosRecebidos['reserva_id'];
 $descricao = $dadosRecebidos['descricao'];
 $valor = $dadosRecebidos['valor'];
-$atendente_id = $_SESSION['usuario_id']; // O ID do atendente que está lançando
+$atendente_id = $_SESSION['usuario_id']; 
 
-// 4. Valida os dados
+
 if (empty($reserva_id) || empty($descricao) || empty($valor)) {
     http_response_code(400); // Bad Request
     echo json_encode([
@@ -60,13 +60,13 @@ if ($reserva['status_reserva'] != 'CHECKIN') {
     exit();
 }
 
-// 6. Insere o Consumo
+
 $sql_insert = "INSERT INTO Consumo_Extras (fk_reserva_id, fk_atendente_id, descricao, valor)
                VALUES ($reserva_id, $atendente_id, '$descricao', $valor)";
 
 if ($conexao->query($sql_insert)) {
     $novo_consumo_id = $conexao->insert_id;
-    http_response_code(201); // Created
+    http_response_code(201); 
     echo json_encode([
         'status' => 'sucesso',
         'mensagem' => 'Consumo adicionado com sucesso.',

@@ -115,7 +115,7 @@
                         <div id="balcao-vagas-disponiveis" class="painel-lista hidden">
                             <h4 data-key="balcao-vagas-encontradas">Vagas Disponíveis:</h4>
                             <div id="balcao-vagas-lista">
-                                </div>
+                            </div>
                             <button id="btn-balcao-confirmar-reserva" class="btn btn-primary hidden" data-key="balcao-btn-confirmar">Confirmar Reserva</button>
                         </div>
                         <p id="balcao-message" class="message-info hidden"></p>
@@ -170,54 +170,78 @@
                         <p data-key="quartos-nenhum-cadastrado">Nenhum quarto cadastrado.</p>
                     </div>
                 </div>
-
+            
                 <div id="modal-quarto-form" class="modal-overlay">
-                     <div class="login-form" id="modal-form-content">
+                    <div class="login-form" id="modal-form-content">
+                        
                         <form id="form-quarto">
                             <h2 id="quarto-form-titulo" class="form-title" data-key="quartos-modal-titulo-novo">Novo Quarto</h2>
+                            
+                            <div class="form-scroll-content">
+                                <p id="quarto-form-message" class="error-message" style="display: none;"></p>
+                                <input type="hidden" id="quarto-id">
                                     
-                            <p id="quarto-form-message" class="error-message" style="display: none;"></p>
-
-                            <input type="hidden" id="quarto-id">
-                                    
-                             <div class="form-field">
-                                <label for="quarto-nome" data-key="quartos-numero">Nome do Quarto (ex: Quarto 1, Suíte Lapa)</label>
-                                <input type="text" id="quarto-nome" required>
-                            </div>
-
-                            <div class="form-field">
-                                <label for="quarto-desc-pt" data-key="quartos-desc-pt">Descrição (PT-BR)</label>
-                                <textarea id="quarto-desc-pt" rows="2"></textarea>
-                            </div>
-                            <div class="form-field">
-                                <label for="quarto-desc-en" data-key="quartos-desc-en">Descrição (EN)</label>
-                                <textarea id="quarto-desc-en" rows="2"></textarea>
-                            </div>
-
-                            <div class="form-grid">
                                 <div class="form-field">
-                                    <label for="quarto-tipo" data-key="quartos-tipo">Tipo</label>
-                                    <select id="quarto-tipo" required>
-                                        <option value="" data-key="balcao-selecione-tipo">Selecione...</option>
-                                        <option value="MISTO" data-key="quarto-tipo-misto">Misto</option>
-                                        <option value="FEMININO" data-key="quarto-tipo-feminino">Feminino</option>
-                                        <option value="MASCULINO" data-key="quarto-tipo-masculino">Masculino</option>
-                                    </select>
+                                    <label for="quarto-nome" data-key="quartos-numero">Nome do Quarto (ex: Quarto 1, Suíte Lapa)</label>
+                                    <input type="text" id="quarto-nome" required>
+                                </div>
+            
+                                <div class="form-field">
+                                    <label for="quarto-desc-pt" data-key="quartos-desc-pt">Descrição (PT-BR)</label>
+                                    <textarea id="quarto-desc-pt" rows="2"></textarea>
                                 </div>
                                 <div class="form-field">
-                                    <label for="quarto-capacidade" data-key="quartos-capacidade">Capacidade</label>
-                                    <input type="number" id="quarto-capacidade" min="1" required>
+                                    <label for="quarto-desc-en" data-key="quartos-desc-en">Descrição (EN)</label>
+                                    <textarea id="quarto-desc-en" rows="2"></textarea>
                                 </div>
+            
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="quarto-tipo" data-key="quartos-tipo">Tipo</label>
+                                        <select id="quarto-tipo" required>
+                                            <option value="" data-key="balcao-selecione-tipo">Selecione...</option>
+                                            <option value="MISTO" data-key="quarto-tipo-misto">Misto</option>
+                                            <option value="FEMININO" data-key="quarto-tipo-feminino">Feminino</option>
+                                            <option value="MASCULINO" data-key="quarto-tipo-masculino">Masculino</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="quarto-capacidade" data-key="quartos-capacidade">Capacidade</label>
+                                        <input type="number" id="quarto-capacidade" min="1" required>
+                                    </div>
                                 </div>
                                     
-                            <div class="form-field">
-                                <label for="quarto-preco-diaria" data-key="quartos-preco">Preço por Diária (R$)</label>
-                                <input type="number" id="quarto-preco-diaria" step="0.01" min="0.01" required>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-cancelar" id="btn-fechar-quarto-modal" data-key="quartos-btn-cancelar">Cancelar</button>
+                                <div class="form-field">
+                                    <label for="quarto-preco-diaria" data-key="quartos-preco">Preço por Diária (R$)</label>
+                                    <input type="number" id="quarto-preco-diaria" step="0.01" min="0.01" required>
+                                </div>
+            
+                                <div class="form-field form-field-row">
+                                    <input type="checkbox" id="quarto-tem-banheiro" class="input-auto">
+                                    <label for="quarto-tem-banheiro">Este quarto possui banheiro privativo?</label>
+                                </div>
+                                
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="quarto-data-entrada" data-key="quartos-data-entrada">Data de Entrada (Disponível a partir de)</label>
+                                        <input type="date" id="quarto-data-entrada" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="quarto-data-saida" data-key="quartos-data-saida">Data de Saída (Disponível até)</label>
+                                        
+                                        <div class="form-field-row">
+                                            <input type="date" id="quarto-data-saida" style="flex-grow: 1;">
+                                            <label>
+                                                <input type="checkbox" id="quarto-saida-indefinida" class="input-auto">
+                                                <span data-key="quartos-saida-indefinida">Indefinido</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+            
+                            </div> <div class="form-actions">
                                 <button type="submit" class="btn btn-login-submit" data-key="quartos-btn-salvar">Salvar Quarto</button>
+                                <button type="button" class="btn-link-style" id="btn-fechar-quarto-modal" data-key="quartos-btn-cancelar">Cancelar</button>
                             </div>
                         </form>
                     </div>
@@ -225,9 +249,53 @@
             </section>
 
             <section id="conteudo-gestao-vagas" class="hidden">
-                <h1 data-key="admin-menu-vagas">Gestão de Vagas</h1>
-                <p>Em desenvolvimento...</p>
+                <h1 data-key="admin-menu-vagas">Gestão de Vagas (Camas)</h1>
+                
+                <div class="card">
+                    <h2>Selecione um Quarto</h2>
+                    <p>Primeiro, escolha o quarto onde você quer gerenciar as vagas (camas).</p>
+                    <div class="form-field">
+                        <label for="vaga-select-quarto">Quartos Cadastrados</label>
+                        <select id="vaga-select-quarto">
+                            <option value="">Carregando quartos...</option>
+                        </select>
+                    </div>
+                </div>
+            
+                <div class="card hidden" id="vagas-detalhe-container">
+                    
+                    <h2 id="vaga-quarto-selecionado-nome">Vagas no Quarto...</h2>
+                    
+                    <div id="vagas-lista" class="painel-lista">
+                        <p>Selecione um quarto para ver as vagas.</p>
+                    </div>
+            
+                    <form id="form-nova-vaga" class="form-inline-card">
+                        <h3>Adicionar Nova Vaga</h3>
+                        <p>Adicione as camas, uma por uma, neste quarto.</p>
+                        
+                        <input type="hidden" id="vaga-fk-quarto-id">
+                        
+                        <div class="form-field">
+                            <label for="vaga-nome-identificador">Nome da Vaga (ex: Cama 1, Beliche A-Cima)</label>
+                            <input type="text" id="vaga-nome-identificador" required>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label for="vaga-descricao-pt">Peculiaridade (PT-BR) (Opcional)</label>
+                            <textarea id="vaga-descricao-pt" rows="2" placeholder="Ex: Perto da janela, com tomada"></textarea>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label for="vaga-descricao-en">Peculiaridade (EN) (Opcional)</label>
+                            <textarea id="vaga-descricao-en" rows="2" placeholder="Ex: Near the window, with outlet"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">Adicionar Vaga</button>
+                    </form>
+                </div>
             </section>
+
             <section id="conteudo-moderacao" class="hidden">
                 <h1 data-key="admin-menu-moderacao">Moderação de Avaliações</h1>
                 <p>Em desenvolvimento...</p>
@@ -243,8 +311,7 @@
     <div id="modal-alerta" class="modal-overlay">
         <div class="login-form" id="alerta-content">
             <h2 class="form-title" id="alerta-titulo" data-key="alerta-titulo-aviso">Aviso</h2>
-            <p id="alerta-texto" style="text-align: center; font-size: 16px;">
-                </p>
+            <p id="alerta-texto" style="text-align: center; font-size: 16px;"></p>
             <button type="button" id="alerta-ok-btn" class="btn btn-login-submit" data-key="alerta-btn-ok">OK</button>
         </div>
     </div>
@@ -262,7 +329,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="js/script_admin.js"></script>
 </body>

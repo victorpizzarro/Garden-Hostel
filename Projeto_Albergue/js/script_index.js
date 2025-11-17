@@ -16,6 +16,7 @@ const dicionarioTextos = {
         'nav-localizacao': 'Localização',
         'nav-avaliacoes': 'Avaliações',
         'btn-login': 'Login / Cadastro',
+        'btn-minha-conta': 'Minha Conta',
         // Hero
         'hero-titulo': 'SANTA TERESA',
         'hero-subtitulo': 'Hospede-se no aconchegante bairro do RJ',
@@ -26,13 +27,11 @@ const dicionarioTextos = {
         'acomodacoes-titulo': 'Temos o quarto ideal para você',
         'acomodacoes-subtitulo': 'Descubra o melhor lugar para se hospedar no Rio de Janeiro: Garden Hostel Santa Teresa!',
         'btn-reserve': 'Reserve Agora!',
-        'card1-titulo': 'Dormitório Misto com 4 Camas',
-        'card1-texto': 'Quarto com ar-condicionado, cortinas individuais, armário com cadeado e banheiro privativo.',
+        'quartos-carregando': 'Carregando quartos disponíveis...',
+        'quartos-disponivel-de': 'Disponível de',
+        'quartos-disponivel-ate': 'até',
+        'quartos-indefinido': 'indefinido',
         'btn-confira': 'Confira!',
-        'card2-titulo': 'Dormitório Misto com 8 Camas',
-        'card2-texto': 'Ambiente confortável e climatizado, com camas de casal tipo beliche e armário individual.',
-        'card3-titulo': 'Dormitório Misto com 12 Camas',
-        'card3-texto': 'Espaço amplo e climatizado, ideal para grupos, com tomadas, iluminação e cortinas individuais.',
         // Benefícios
         'beneficios-titulo': 'Nossos benefícios',
         'beneficio1': 'Wi-Fi grátis',
@@ -58,6 +57,7 @@ const dicionarioTextos = {
         'nav-localizacao': 'Location',
         'nav-avaliacoes': 'Reviews',
         'btn-login': 'Login / Sign Up',
+        'btn-minha-conta': 'My Account',
         // Hero
         'hero-titulo': 'SANTA TERESA',
         'hero-subtitulo': 'Stay in the cozy neighborhood of Rio',
@@ -68,13 +68,11 @@ const dicionarioTextos = {
         'acomodacoes-titulo': 'We have the ideal room for you',
         'acomodacoes-subtitulo': 'Discover the best place to stay in Rio de Janeiro: Garden Hostel Santa Teresa!',
         'btn-reserve': 'Book Now!',
-        'card1-titulo': 'Mixed Dorm (4 Beds)',
-        'card1-texto': 'Room with air conditioning, individual curtains, locker with padlock, and private bathroom.',
+        'quartos-carregando': 'Loading available rooms...',
+        'quartos-disponivel-de': 'Available from',
+        'quartos-disponivel-ate': 'until',
+        'quartos-indefinido': 'indefinite',
         'btn-confira': 'Check it out!',
-        'card2-titulo': 'Mixed Dorm (8 Beds)',
-        'card2-texto': 'Comfortable, air-conditioned environment, with double bunk beds and individual lockers.',
-        'card3-titulo': 'Mixed Dorm (12 Beds)',
-        'card3-texto': 'Spacious, air-conditioned area, ideal for groups, with power outlets, lighting, and individual curtains.',
         // Benefícios
         'beneficios-titulo': 'Our Amenities',
         'beneficio1': 'Free Wi-Fi',
@@ -110,6 +108,26 @@ if (!idiomaAtual) {
 // "Ouve" o evento de que a página HTML foi 100% carregada
 document.addEventListener('DOMContentLoaded', () => {
 
+    // 0. Verifica se o usuário está logado e atualiza o header
+    fetch('api/usuario/checar_sessao.php', { method: 'GET', credentials: 'include' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.logado && data.tipo_usuario === 'CLIENTE') {
+                const userInfo = document.getElementById('header-user-info');
+                userInfo.style.display = 'flex';
+                userInfo.style.alignItems = 'center';
+                userInfo.style.gap = '10px';
+                document.getElementById('header-login-buttons').style.display = 'none';
+                document.getElementById('header-user-name').innerText = `Olá, ${data.nome}`;
+            } else {
+                document.getElementById('header-user-info').style.display = 'none';
+                document.getElementById('header-login-buttons').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao verificar sessão:', error);
+        });
+
     // 3. Aplica a tradução IMEDIATAMENTE quando a página carrega
     aplicarTraducoes();
 
@@ -144,6 +162,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Seção 1.5: Lógica dos Cards de Quartos (Clicar na imagem para reservar) ---
+    const cardsQuartos = document.querySelectorAll('.acomodacao-card');
+    cardsQuartos.forEach(card => {
+        const img = card.querySelector('.card-img');
+        const btnConfira = card.querySelector('.btn-card');
+        
+        // Função para iniciar reserva
+        const iniciarReserva = () => {
+            // Verifica se o usuário está logado
+            fetch('api/usuario/checar_sessao.php', { method: 'GET', credentials: 'include' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.logado && data.tipo_usuario === 'CLIENTE') {
+                        // Usuário logado - vai para a página de reserva
+                        const checkinVal = inputCheckin.value;
+                        const checkoutVal = inputCheckout.value;
+                        
+                        if (!checkinVal || !checkoutVal) {
+                            alert('Por favor, preencha as datas de Check-in e Check-out antes de reservar.');
+                            // Foca no formulário de busca
+                            inputCheckin.focus();
+                            return;
+                        }
+                        if (checkoutVal <= checkinVal) {
+                            alert('A data de Check-out deve ser depois da data de Check-in.');
+                            return;
+                        }
+                        window.location.href = `reserva.html?checkin=${checkinVal}&checkout=${checkoutVal}`;
+                    } else {
+                        // Usuário não logado - redireciona para login
+                        alert('Por favor, faça login para fazer uma reserva.');
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar sessão:', error);
+                    alert('Por favor, faça login para fazer uma reserva.');
+                    window.location.href = 'login.html';
+                });
+        };
+        
+        // Adiciona evento de clique na imagem
+        if (img) {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', iniciarReserva);
+        }
+        
+        // Adiciona evento de clique no botão "Confira!"
+        if (btnConfira) {
+            btnConfira.addEventListener('click', (e) => {
+                e.preventDefault();
+                iniciarReserva();
+            });
+        }
+    });
+
     // --- Seção 2: Lógica para "Clicar em qualquer lugar" (Seletor de Data) ---
     const camposDeData = document.querySelectorAll('.search-field');
 
@@ -160,7 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Seção 3: Lógica para carregar Avaliações (RF07) ---
+    // --- Seção 3: Lógica para carregar Quartos Disponíveis ---
+    carregarQuartosDisponiveis();
+
+    // --- Seção 4: Lógica para carregar Avaliações (RF07) ---
     // (A lógica do carrossel está dentro desta função)
     carregarAvaliacoes(); 
 
@@ -305,13 +382,124 @@ function aplicarTraducoes() {
         }
     });
     
-    // Recarrega as avaliações (que vêm do BD)
-    // para pegar o 'comentario_pt' ou 'comentario_en'
+    // Recarrega os quartos disponíveis e avaliações (que vêm do BD)
+    carregarQuartosDisponiveis();
     carregarAvaliacoes();
 
     // Sinaliza para o CSS que a tradução terminou e
     // que os textos podem ser exibidos.
     document.body.classList.add('js-traduzido');
+}
+
+/**
+ * Função: carregarQuartosDisponiveis
+ * Descrição: Carrega os quartos disponíveis do banco e exibe na página inicial
+ */
+function carregarQuartosDisponiveis() {
+    const container = document.getElementById('quartos-disponiveis-grid');
+    container.innerHTML = `<p>${dicionarioTextos[idiomaAtual]['quartos-carregando']}</p>`;
+
+    fetch('api/quartos/listar_disponiveis.php')
+        .then(response => response.json())
+        .then(quartos => {
+            container.innerHTML = '';
+
+            if (quartos.length === 0) {
+                container.innerHTML = '<p style="text-align: center; width: 100%;">Nenhum quarto disponível no momento.</p>';
+                return;
+            }
+
+            quartos.forEach(quarto => {
+                // Determina a imagem baseada na capacidade
+                let imagem = 'imagens/quarto-4-camas.jpg'; // Padrão
+                if (quarto.capacidade >= 12) {
+                    imagem = 'imagens/quarto-12-camas.jpg';
+                } else if (quarto.capacidade >= 8) {
+                    imagem = 'imagens/quarto-8-camas.jpg';
+                } else if (quarto.capacidade >= 4) {
+                    imagem = 'imagens/quarto-4-camas.jpg';
+                }
+
+                // Formata as datas
+                const dataEntrada = quarto.data_entrada ? new Date(quarto.data_entrada).toLocaleDateString('pt-BR') : 'Hoje';
+                const dataSaida = quarto.data_saida ? new Date(quarto.data_saida).toLocaleDateString('pt-BR') : dicionarioTextos[idiomaAtual]['quartos-indefinido'];
+                
+                // Pega a descrição no idioma correto
+                const descricao = (idiomaAtual === 'en' && quarto.descricao_en) ? quarto.descricao_en : (quarto.descricao_pt || 'Quarto confortável e bem equipado.');
+
+                const card = document.createElement('article');
+                card.className = 'acomodacao-card';
+                card.innerHTML = `
+                    <img src="${imagem}" alt="${quarto.nome}" class="card-img">
+                    <div class="card-content">
+                        <h3>${quarto.nome}</h3>
+                        <p>${descricao}</p>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <strong>${dicionarioTextos[idiomaAtual]['quartos-disponivel-de']}</strong> ${dataEntrada} 
+                            <strong>${dicionarioTextos[idiomaAtual]['quartos-disponivel-ate']}</strong> ${dataSaida}
+                        </p>
+                        <p style="font-size: 0.9em; color: #666;">
+                            <strong>Capacidade:</strong> ${quarto.capacidade} camas | 
+                            <strong>Preço:</strong> R$ ${quarto.preco_diaria}/diária
+                        </p>
+                        <a href="#form-busca" class="btn btn-card" data-key="btn-confira">${dicionarioTextos[idiomaAtual]['btn-confira']}</a>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                // Adiciona evento de clique na imagem e botão
+                const img = card.querySelector('.card-img');
+                const btnConfira = card.querySelector('.btn-card');
+                
+                const iniciarReserva = () => {
+                    const inputCheckinEl = document.getElementById('checkin');
+                    const inputCheckoutEl = document.getElementById('checkout');
+                    
+                    fetch('api/usuario/checar_sessao.php', { method: 'GET', credentials: 'include' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.logado && data.tipo_usuario === 'CLIENTE') {
+                                const checkinVal = inputCheckinEl ? inputCheckinEl.value : '';
+                                const checkoutVal = inputCheckoutEl ? inputCheckoutEl.value : '';
+                                
+                                if (!checkinVal || !checkoutVal) {
+                                    alert('Por favor, preencha as datas de Check-in e Check-out antes de reservar.');
+                                    if (inputCheckinEl) inputCheckinEl.focus();
+                                    return;
+                                }
+                                if (checkoutVal <= checkinVal) {
+                                    alert('A data de Check-out deve ser depois da data de Check-in.');
+                                    return;
+                                }
+                                window.location.href = `reserva.html?checkin=${checkinVal}&checkout=${checkoutVal}`;
+                            } else {
+                                alert('Por favor, faça login para fazer uma reserva.');
+                                window.location.href = 'login.html';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao verificar sessão:', error);
+                            alert('Por favor, faça login para fazer uma reserva.');
+                            window.location.href = 'login.html';
+                        });
+                };
+                
+                if (img) {
+                    img.style.cursor = 'pointer';
+                    img.addEventListener('click', iniciarReserva);
+                }
+                if (btnConfira) {
+                    btnConfira.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        iniciarReserva();
+                    });
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar quartos:', error);
+            container.innerHTML = '<p style="text-align: center; width: 100%;">Erro ao carregar quartos disponíveis.</p>';
+        });
 }
 
 /**

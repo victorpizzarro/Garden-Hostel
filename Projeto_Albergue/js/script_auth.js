@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.tipo_usuario === 'CLIENTE' && reservaPendente) {
                     window.location.href = 'reserva.html';
                 } else if (data.tipo_usuario === 'CLIENTE') {
-                    window.location.href = 'painel_cliente.html';
+                    window.location.href = 'index.html';
                 } else {
                     window.location.href = 'painel_admin.html';
                 }
